@@ -1,0 +1,478 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ property.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Inicio</a></li>
+            <li class="breadcrumb-item active">{{ property.title }}</li>
+        </ol>
+    </nav>
+    
+    <h1 class="mb-3">{{ property.title }}</h1>
+    <p class="text-muted mb-4">
+        <i class="fas fa-map-marker-alt"></i> {{ property.get_location_display }} · 
+        {{ property.category.name }} · {{ property.get_rental_type_display }}
+    </p>
+    
+    <div class="row">
+        <!-- Columna izquierda -->
+        <div class="col-lg-8">
+            <img src="{{ property.main_photo.url }}" class="img-fluid rounded-3 mb-3 w-100" 
+                 alt="{{ property.title }}" style="max-height: 500px; object-fit: cover;">
+            
+            {% if property.images.all %}
+            <div class="row mb-4">
+                {% for image in property.images.all %}
+                <div class="col-md-3 mb-2">
+                    <img src="{{ image.image.url }}" class="img-fluid rounded-3" 
+                         alt="{{ image.caption }}" style="height: 100px; width: 100%; object-fit: cover;">
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="h5 mb-3">Descripción</h3>
+                    <p>{{ property.description|linebreaks }}</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="h5 mb-3">Qué ofrece</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                {% if property.has_wifi %}<li class="mb-2"><i class="fas fa-wifi text-success me-2"></i> WiFi</li>{% endif %}
+                                {% if property.has_tv %}<li class="mb-2"><i class="fas fa-tv text-success me-2"></i> TV</li>{% endif %}
+                                {% if property.has_kitchen %}<li class="mb-2"><i class="fas fa-utensils text-success me-2"></i> Cocina</li>{% endif %}
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                {% if property.has_parking %}<li class="mb-2"><i class="fas fa-parking text-success me-2"></i> Parqueo</li>{% endif %}
+                                {% if property.has_pool %}<li class="mb-2"><i class="fas fa-swimmer text-success me-2"></i> Piscina</li>{% endif %}
+                                {% if property.has_ac %}<li class="mb-2"><i class="fas fa-snowflake text-success me-2"></i> Aire acondicionado</li>{% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendario de disponibilidad (SOLO UNO) -->
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <h3 class="h5 mb-4">
+                        <i class="fas fa-calendar-alt me-2" style="color: #00a699;"></i>
+                        Disponibilidad
+                    </h3>
+                    
+                    <div class="calendar-container">
+                        <!-- Cabecera del calendario -->
+                        <div class="calendar-header d-flex justify-content-between align-items-center">
+                            <button class="month-nav-btn" id="prevMonth">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <h6 id="currentMonth" class="current-month">Marzo 2024</h6>
+                            <button class="month-nav-btn" id="nextMonth">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Días de la semana -->
+                        <div class="row g-1 text-center mb-3">
+                            <div class="col"><span class="weekday-label">Lu</span></div>
+                            <div class="col"><span class="weekday-label">Ma</span></div>
+                            <div class="col"><span class="weekday-label">Mi</span></div>
+                            <div class="col"><span class="weekday-label">Ju</span></div>
+                            <div class="col"><span class="weekday-label">Vi</span></div>
+                            <div class="col"><span class="weekday-label">Sá</span></div>
+                            <div class="col"><span class="weekday-label">Do</span></div>
+                        </div>
+                        
+                        <!-- Cuadrícula del calendario -->
+                        <div id="calendarGrid" class="row g-1"></div>
+                        
+                        <!-- Leyenda -->
+                        <div class="mt-4 d-flex gap-3 small">
+                            <span class="badge" style="background: #00a699; color: white; padding: 6px 12px;">
+                                <i class="fas fa-check-circle me-1"></i> Disponible
+                            </span>
+                            <span class="badge" style="background: #e0e0e0; color: #666; padding: 6px 12px;">
+                                <i class="fas fa-times-circle me-1"></i> Ocupado
+                            </span>
+                            <span class="badge" style="background: #ff5a5f; color: white; padding: 6px 12px;">
+                                <i class="fas fa-check-double me-1"></i> Seleccionado
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Mensaje de fechas seleccionadas -->
+                    <div id="selectedDatesMessage" class="mt-3"></div>
+                </div>
+            </div>
+        </div>  <!-- Cierre columna izquierda -->
+        
+        <!-- Columna derecha -->
+        <div class="col-lg-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    {% if property.price_per_night %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5>Por noche</h5>
+                        <h4>${{ property.price_per_night }}</h4>
+                    </div>
+                    {% endif %}
+                    
+                    {% if property.price_per_month %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5>Por mes</h5>
+                        <h4>${{ property.price_per_month }}</h4>
+                    </div>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <a id="whatsappButton" href="#" 
+                       class="btn btn-success btn-lg w-100 mb-3">
+                        <i class="fab fa-whatsapp"></i> Consultar disponibilidad
+                    </a>
+                    
+                    <p class="small text-muted text-center mb-0">
+                        <i class="fas fa-shield-alt"></i> El dueño sabrá que nos visitaste
+                    </p>
+                    
+                    <hr>
+                    
+                    <h6 class="mb-2">Detalles</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-1"><i class="fas fa-bed me-2"></i> {{ property.bedrooms }} habitaciones</li>
+                        <li class="mb-1"><i class="fas fa-users me-2"></i> {{ property.guests }} huéspedes</li>
+                        <li class="mb-1"><i class="fas fa-bath me-2"></i> {{ property.bathrooms }} baños</li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <h6 class="mb-2">Dirección</h6>
+                    <p class="small">{{ property.address }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<style>
+/* Estilos para el calendario */
+.date-cell {
+    cursor: pointer;
+    transition: all 0.2s;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+}
+
+.date-cell:hover:not(.bg-secondary):not(.bg-light) {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0,166,153,0.3);
+}
+
+.available-date {
+    background: linear-gradient(145deg, #00a699, #008b82);
+    color: white;
+    font-weight: 500;
+}
+
+.booked-date {
+    background: #e0e0e0;
+    color: #666;
+    cursor: not-allowed;
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.past-date {
+    background: #f5f5f5;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+.selected-date {
+    background: #ff5a5f !important;
+    color: white !important;
+    font-weight: bold;
+    box-shadow: 0 2px 12px rgba(255,90,95,0.4);
+}
+
+.range-date {
+    background: rgba(255,90,95,0.2) !important;
+    color: #333 !important;
+    font-weight: 500;
+}
+
+.weekday-label {
+    font-weight: 600;
+    color: #666;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.calendar-header {
+    background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+    border-radius: 10px;
+    padding: 8px;
+    margin-bottom: 15px;
+}
+
+.month-nav-btn {
+    border: none;
+    background: white;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+}
+
+.month-nav-btn:hover {
+    background: #00a699;
+    color: white;
+    transform: scale(1.1);
+}
+
+.current-month {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+</style>
+
+<script>
+// Variables globales
+let bookedDates = [];
+let currentDate = new Date();
+let currentMonth = currentDate.getMonth();
+let currentYear = currentDate.getFullYear();
+const propertyId = {{ property.id }};
+
+// Variables para selección de fechas
+let selectedStartDate = null;
+let selectedEndDate = null;
+
+// Cargar fechas ocupadas al iniciar
+fetch(`/api/property/${propertyId}/booked-dates/`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            bookedDates = data.booked_dates;
+            console.log("Fechas ocupadas:", bookedDates);
+        }
+        renderCalendar(currentMonth, currentYear);
+    });
+
+function renderCalendar(month, year) {
+    const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    
+    document.getElementById('currentMonth').textContent = `${monthNames[month]} ${year}`;
+    
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    // Ajustar para empezar en lunes
+    let startDay = firstDay === 0 ? 6 : firstDay - 1;
+    
+    let calendarHTML = '';
+    let dayCount = 1;
+    
+    for (let i = 0; i < 6; i++) {
+        calendarHTML += '<div class="row g-1">';
+        
+        for (let j = 0; j < 7; j++) {
+            if (i === 0 && j < startDay) {
+                calendarHTML += '<div class="col"><div class="p-2"></div></div>';
+            } else if (dayCount <= daysInMonth) {
+                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(dayCount).padStart(2,'0')}`;
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const cellDate = new Date(dateStr);
+                
+                // Determinar clases del día
+                let cellClass = 'p-2 text-center rounded date-cell';
+                let isBooked = bookedDates.includes(dateStr);
+                let isPast = cellDate < today;
+                let isSelected = (dateStr === selectedStartDate || dateStr === selectedEndDate);
+                
+                // Verificar si está en el rango seleccionado
+                let inRange = false;
+                if (selectedStartDate && selectedEndDate) {
+                    const start = new Date(selectedStartDate);
+                    const end = new Date(selectedEndDate);
+                    inRange = cellDate >= start && cellDate <= end;
+                }
+                
+                if (isBooked) {
+                    cellClass += ' bg-secondary text-white booked-date';
+                } else if (isPast) {
+                    cellClass += ' bg-light text-muted past-date';
+                } else if (isSelected) {
+                    cellClass += ' bg-primary text-white selected-date';
+                } else if (inRange) {
+                    cellClass += ' bg-primary bg-opacity-25 text-dark range-date';
+                } else {
+                    cellClass += ' bg-success text-white available-date';
+                }
+                
+                cellClass += ' cursor-pointer';
+                
+                calendarHTML += `<div class="col"><div class="${cellClass}" data-date="${dateStr}" onclick="selectDate('${dateStr}')">${dayCount}</div></div>`;
+                dayCount++;
+            } else {
+                calendarHTML += '<div class="col"><div class="p-2"></div></div>';
+            }
+        }
+        
+        calendarHTML += '</div>';
+    }
+    
+    document.getElementById('calendarGrid').innerHTML = calendarHTML;
+    
+    // Actualizar mensaje de fechas seleccionadas
+    updateSelectedDatesMessage();
+}
+
+// Función para seleccionar fechas
+window.selectDate = function(dateStr) {
+    const date = new Date(dateStr);
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    // No permitir seleccionar fechas pasadas u ocupadas
+    if (date < today || bookedDates.includes(dateStr)) {
+        alert('Esta fecha no está disponible');
+        return;
+    }
+    
+    // Lógica de selección (como Airbnb)
+    if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
+        // Primer clic o reinicio
+        selectedStartDate = dateStr;
+        selectedEndDate = null;
+    } else if (!selectedEndDate) {
+        // Segundo clic
+        if (dateStr > selectedStartDate) {
+            selectedEndDate = dateStr;
+        } else {
+            // Si selecciona una fecha anterior, reiniciamos
+            selectedStartDate = dateStr;
+            selectedEndDate = null;
+        }
+    }
+    
+    renderCalendar(currentMonth, currentYear);
+};
+
+// Actualizar mensaje de fechas seleccionadas
+function updateSelectedDatesMessage() {
+    const messageDiv = document.getElementById('selectedDatesMessage');
+    if (!messageDiv) return;
+    
+    if (selectedStartDate && selectedEndDate) {
+        messageDiv.innerHTML = `
+            <div class="alert alert-success">
+                <strong>Fechas seleccionadas:</strong><br>
+                Llegada: ${selectedStartDate}<br>
+                Salida: ${selectedEndDate}
+            </div>
+        `;
+    } else if (selectedStartDate) {
+        messageDiv.innerHTML = `
+            <div class="alert alert-info">
+                Selecciona la fecha de salida
+            </div>
+        `;
+    } else {
+        messageDiv.innerHTML = '';
+    }
+}
+
+// Navegación del calendario
+document.getElementById('prevMonth').addEventListener('click', () => {
+    currentMonth--;
+    if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+    }
+    renderCalendar(currentMonth, currentYear);
+});
+
+document.getElementById('nextMonth').addEventListener('click', () => {
+    currentMonth++;
+    if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+    }
+    renderCalendar(currentMonth, currentYear);
+});
+
+// Preparar mensaje de WhatsApp
+document.getElementById('whatsappButton').addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    let message = `Hola! Me interesa esta propiedad:%0A%0A*{{ property.title|urlencode }}*%0A{{ property.get_location_display|urlencode }}`;
+    
+    if (selectedStartDate && selectedEndDate) {
+        message += `%0A%0A*Fechas seleccionadas:*%0A📅 Llegada: ${selectedStartDate}%0A📅 Salida: ${selectedEndDate}`;
+        
+        // Verificar si están disponibles
+        const start = new Date(selectedStartDate);
+        const end = new Date(selectedEndDate);
+        let current = new Date(start);
+        let hasConflict = false;
+        
+        while (current <= end) {
+            const dateStr = current.toISOString().split('T')[0];
+            if (bookedDates.includes(dateStr)) {
+                hasConflict = true;
+                break;
+            }
+            current.setDate(current.getDate() + 1);
+        }
+        
+        if (!hasConflict) {
+            message += `%0A%0A✅ *Disponible para esas fechas*`;
+        } else {
+            message += `%0A%0A⚠️ *Verificar disponibilidad*`;
+        }
+    }
+    
+    message += `%0A%0A${window.location.href}`;
+    
+    // Abrir WhatsApp
+    window.open(`https://wa.me/{{ business_whatsapp }}?text=${message}`, '_blank');
+    
+    // Tracking
+    fetch('/leads/track/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ property_id: propertyId })
+    });
+});
+</script>
+{% endblock %}
+
+{% endblock %}

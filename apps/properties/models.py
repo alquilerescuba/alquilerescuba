@@ -1,0 +1,148 @@
+from django.db import models
+
+
+class Category(models.Model):
+    """Casa o Apartamento"""
+
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(unique=True)
+
+    class Meta:
+        verbose_name_plural = "Categorías"
+
+    def __str__(self):
+        return self.name
+
+
+class Property(models.Model):
+    """La propiedad que se alquila"""
+
+    LOCATIONS = [
+        ("varadero", "Varadero"),
+        ("santa_marta", "Santa Marta"),
+        ("guanabo", "Guanabo"),
+        ("boca_ciega", "Boca Ciega"),
+        ("penas_altas", "Peñas Altas"),
+        ("brisas_mar", "Brisas del Mar"),
+        ("habana_vieja", "Habana Vieja"),
+        ("centro_habana", "Centro Habana"),
+        ("vedado", "Vedado"),
+        ("nuevo_vedado", "Nuevo Vedado"),
+        ("playa", "Playa"),
+        ("fontanar", "Fontanar"),
+        ("calabazar", "Calabazar"),
+        ("vinales", "Viñales"),
+        ("trinidad", "Trinidad"),
+    ]
+
+    RENTAL_TYPES = [
+        ("entire", "Toda la propiedad"),
+        ("apartment", "Solo un apartamento"),
+    ]
+
+    title = models.CharField(max_length=200, verbose_name="Título")
+    description = models.TextField(verbose_name="Descripción")
+
+    category = models.ForeignKey(
+        Category, on_delete=models.SET_NULL, null=True, verbose_name="Tipo"
+    )
+
+    location = models.CharField(
+        max_length=50, choices=LOCATIONS, verbose_name="Ubicación"
+    )
+
+    address = models.CharField(max_length=255, verbose_name="Dirección exacta")
+
+    bedrooms = models.PositiveIntegerField(default=1, verbose_name="Habitaciones")
+    guests = models.PositiveIntegerField(default=1, verbose_name="Huéspedes")
+    bathrooms = models.PositiveIntegerField(default=1, verbose_name="Baños")
+
+    rental_type = models.CharField(
+        max_length=20,
+        choices=RENTAL_TYPES,
+        default="entire",
+        verbose_name="Tipo de alquiler",
+    )
+
+    has_wifi = models.BooleanField(default=False, verbose_name="WiFi")
+    has_tv = models.BooleanField(default=False, verbose_name="TV")
+    has_kitchen = models.BooleanField(default=False, verbose_name="Cocina")
+    has_parking = models.BooleanField(default=False, verbose_name="Parqueo")
+    has_pool = models.BooleanField(default=False, verbose_name="Piscina")
+    has_ac = models.BooleanField(default=False, verbose_name="Aire acondicionado")
+
+    price_per_night = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Precio por noche (USD)",
+        null=True,
+        blank=True,
+    )
+
+    price_per_month = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Precio por mes (USD)",
+        null=True,
+        blank=True,
+    )
+
+    main_photo = models.ImageField(
+        upload_to="properties/", verbose_name="Foto principal"
+    )
+
+    is_active = models.BooleanField(default=True, verbose_name="Activa")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Propiedad"
+        verbose_name_plural = "Propiedades"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.title} - {self.get_location_display()}"
+
+
+class PropertyImage(models.Model):
+    property = models.ForeignKey(
+        Property,
+        related_name="images",
+        on_delete=models.CASCADE,
+        verbose_name="Propiedad",
+    )
+    image = models.ImageField(upload_to="properties/gallery/", verbose_name="Imagen")
+    caption = models.CharField(max_length=100, blank=True, verbose_name="Pie de foto")
+
+    class Meta:
+        verbose_name = "Imagen de propiedad"
+        verbose_name_plural = "Imágenes de propiedades"
+
+    def __str__(self):
+        return f"Imagen de {self.property.title}"
+
+
+class Booking(models.Model):
+    """Reserva de una propiedad"""
+
+    property = models.ForeignKey(
+        Property,
+        on_delete=models.CASCADE,
+        related_name="bookings",
+        verbose_name="Propiedad",
+    )
+    start_date = models.DateField(verbose_name="Fecha de entrada")
+    end_date = models.DateField(verbose_name="Fecha de salida")
+    guest_name = models.CharField(max_length=100, verbose_name="Nombre del huésped")
+    guest_email = models.EmailField(verbose_name="Email")
+    guest_phone = models.CharField(max_length=20, verbose_name="Teléfono")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Creado el")
+
+    class Meta:
+        verbose_name = "Reserva"
+        verbose_name_plural = "Reservas"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.property.title}: {self.start_date} a {self.end_date}"

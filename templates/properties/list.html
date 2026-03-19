@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Encuentra alojamiento en Cuba{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-4 mb-4">Encuentra tu alojamiento en Cuba</h1>
+            <p class="lead text-muted">Casas y apartamentos en las mejores playas y ciudades</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar con filtros -->
+        <div class="col-md-3 mb-4">
+            <div class="card p-3">
+                <h5 class="mb-3">Filtros</h5>
+                <form method="get">
+                    <!-- Ubicación (select) -->
+                    <div class="mb-3">
+                        <label class="form-label">Ubicación</label>
+                        <select name="location" class="form-select">
+                            <option value="">Todas</option>
+                            {% for loc_value, loc_name in filter.form.fields.location.choices %}
+                                <option value="{{ loc_value }}" {% if request.GET.location == loc_value %}selected{% endif %}>
+                                    {{ loc_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Tipo (Casa/Apartamento) -->
+                    <div class="mb-3">
+                        <label class="form-label">Tipo</label>
+                        <select name="category" class="form-select">
+                            <option value="">Todos</option>
+                            {% for cat in filter.form.fields.category.queryset %}
+                            <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:'s' %}selected{% endif %}>
+                                {{ cat.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Tipo de alquiler -->
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de alquiler</label>
+                        <select name="rental_type" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="entire" {% if request.GET.rental_type == 'entire' %}selected{% endif %}>Toda la propiedad</option>
+                            <option value="apartment" {% if request.GET.rental_type == 'apartment' %}selected{% endif %}>Solo un apartamento</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Habitaciones -->
+                    <div class="mb-3">
+                        <label class="form-label">Habitaciones (mínimo)</label>
+                        <input type="number" name="bedrooms" class="form-control" value="{{ request.GET.bedrooms }}" min="1">
+                    </div>
+                    
+                    <!-- Precio por noche -->
+                    <div class="mb-3">
+                        <label class="form-label">Precio noche (mín USD)</label>
+                        <input type="number" name="price_per_night_min" class="form-control" value="{{ request.GET.price_per_night_min }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Precio noche (máx USD)</label>
+                        <input type="number" name="price_per_night_max" class="form-control" value="{{ request.GET.price_per_night_max }}">
+                    </div>
+                    
+                    <!-- Amenidades -->
+                    <div class="mb-3">
+                        <label class="form-label d-block">Amenidades</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="has_wifi" value="true" {% if request.GET.has_wifi %}checked{% endif %}>
+                            <label class="form-check-label">WiFi</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="has_pool" value="true" {% if request.GET.has_pool %}checked{% endif %}>
+                            <label class="form-check-label">Piscina</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="has_parking" value="true" {% if request.GET.has_parking %}checked{% endif %}>
+                            <label class="form-check-label">Parqueo</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="has_ac" value="true" {% if request.GET.has_ac %}checked{% endif %}>
+                            <label class="form-check-label">Aire acondicionado</label>
+                        </div>
+                    </div>
+
+<!-- Filtros de fecha (nuevos) -->
+                    <div class="mb-3">
+    <label class="form-label">Fechas</label>
+    <div class="row g-2">
+        <div class="col-6">
+            <input type="date" name="check_in" class="form-control" value="{{ request.GET.check_in }}" placeholder="Llegada">
+        </div>
+        <div class="col-6">
+            <input type="date" name="check_out" class="form-control" value="{{ request.GET.check_out }}" placeholder="Salida">
+        </div>
+    </div>
+    <small class="text-muted">Muestra propiedades disponibles</small>
+</div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">Aplicar filtros</button>
+                    <a href="/" class="btn btn-outline-secondary w-100 mt-2">Limpiar</a>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Listado -->
+        <div class="col-md-9">
+            <div class="row">
+                {% for property in properties %}
+<div class="col-md-4 mb-4">
+    <a href="{% url 'properties:detail' property.pk %}" class="text-decoration-none">
+        <div class="card h-100">
+            <img src="{{ property.main_photo.url }}" class="card-img-top" alt="{{ property.title }}">
+            <div class="card-body">
+                <h5 class="card-title text-dark">{{ property.title }}</h5>
+                <p class="card-text">
+                    <small class="text-muted">
+                        <i class="fas fa-map-marker-alt"></i> {{ property.get_location_display }}
+                    </small><br>
+                    <small class="text-muted">
+                        <i class="fas fa-tag"></i> {{ property.category.name }} · {{ property.get_rental_type_display }}
+                    </small>
+                </p>
+                <p class="card-text">
+                    <span class="badge-amenity"><i class="fas fa-bed"></i> {{ property.bedrooms }}</span>
+                    <span class="badge-amenity"><i class="fas fa-users"></i> {{ property.guests }}</span>
+                </p>
+                <p class="card-text">
+                    {% if property.price_per_night %}
+                        <strong class="h6 text-dark">${{ property.price_per_night }}</strong> <small class="text-muted">/noche</small><br>
+                    {% endif %}
+                    {% if property.price_per_month %}
+                        <strong class="h6 text-dark">${{ property.price_per_month }}</strong> <small class="text-muted">/mes</small>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </a>
+</div>
+{% endfor %}
+            </div>
+            
+            <!-- Paginación (igual que antes) -->
+        </div>
+    </div>
+</div>
+{% endblock %}
