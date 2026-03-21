@@ -5,5 +5,4 @@ app_name = "leads"
 
 urlpatterns = [
     path("track/", views.track_lead, name="track"),
-    path("dashboard/", views.LeadListView.as_view(), name="dashboard"),
 ]

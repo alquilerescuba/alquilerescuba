@@ -2,9 +2,10 @@ from django.views.generic import ListView, DetailView
 from django_filters.views import FilterView  # ✅ ESTA LÍNEA ES LA QUE FALTA
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
-from .models import Property, Booking
-from .filters import PropertyFilter
+from properties.models import Property, Booking
+from properties.filters import PropertyFilter
 from datetime import timedelta
+from django.shortcuts import render
 
 
 class PropertyListView(FilterView):

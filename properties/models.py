@@ -17,34 +17,39 @@ class Category(models.Model):
 class Property(models.Model):
     """La propiedad que se alquila"""
 
+    # Ubicaciones ordenadas por provincias
     LOCATIONS = [
-        ("varadero", "Varadero"),
-        ("santa_marta", "Santa Marta"),
-        ("guanabo", "Guanabo"),
-        ("boca_ciega", "Boca Ciega"),
-        ("penas_altas", "Peñas Altas"),
-        ("brisas_mar", "Brisas del Mar"),
-        ("habana_vieja", "Habana Vieja"),
-        ("centro_habana", "Centro Habana"),
+        # Pinar del Río
+        ("vinales", "Viñales"),
+        # Habana
+        ("playa", "Playa"),
         ("vedado", "Vedado"),
         ("nuevo_vedado", "Nuevo Vedado"),
-        ("playa", "Playa"),
+        ("centro_habana", "Centro Habana"),
+        ("habana_vieja", "Habana Vieja"),
         ("fontanar", "Fontanar"),
         ("calabazar", "Calabazar"),
-        ("vinales", "Viñales"),
+        ("boca_ciega", "Boca Ciega"),
+        ("guanabo", "Guanabo"),
+        ("penas_altas", "Peñas Altas"),
+        # Matanzas
+        ("varadero", "Varadero"),
+        ("santa_marta", "Santa Marta"),
+        # Sancti Spíritus
         ("trinidad", "Trinidad"),
     ]
 
+    # Tipo de alquiler: Toda la propiedad o Por habitaciones
     RENTAL_TYPES = [
         ("entire", "Toda la propiedad"),
-        ("apartment", "Solo un apartamento"),
+        ("room", "Por habitaciones"),
     ]
 
     title = models.CharField(max_length=200, verbose_name="Título")
     description = models.TextField(verbose_name="Descripción")
 
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, null=True, verbose_name="Tipo"
+        Category, on_delete=models.SET_NULL, null=True, verbose_name="Tipo de propiedad"
     )
 
     location = models.CharField(
@@ -64,12 +69,31 @@ class Property(models.Model):
         verbose_name="Tipo de alquiler",
     )
 
+    # Amenidades
     has_wifi = models.BooleanField(default=False, verbose_name="WiFi")
     has_tv = models.BooleanField(default=False, verbose_name="TV")
     has_kitchen = models.BooleanField(default=False, verbose_name="Cocina")
     has_parking = models.BooleanField(default=False, verbose_name="Parqueo")
     has_pool = models.BooleanField(default=False, verbose_name="Piscina")
     has_ac = models.BooleanField(default=False, verbose_name="Aire acondicionado")
+    has_billiard = models.BooleanField(default=False, verbose_name="Billar")
+    has_washing_machine = models.BooleanField(default=False, verbose_name="Lavadora")
+    has_charcoal_oven = models.BooleanField(
+        default=False, verbose_name="Horno al carbón"
+    )
+
+    # Categoría de precio
+    PRICE_CATEGORIES = [
+        ("night", "Por noche"),
+        ("month", "Por mes"),
+    ]
+
+    price_category = models.CharField(
+        max_length=10,
+        choices=PRICE_CATEGORIES,
+        default="night",
+        verbose_name="Categoría de precio",
+    )
 
     price_per_night = models.DecimalField(
         max_digits=10,

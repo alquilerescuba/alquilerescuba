@@ -24,6 +24,7 @@ class Lead(models.Model):
     notes = models.TextField(blank=True, verbose_name="Notas")
 
     class Meta:
+        app_label = "leads"
         verbose_name = "Lead"
         verbose_name_plural = "Leads"
         ordering = ["-clicked_at"]

@@ -6,10 +6,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # IMPORTANTE: Esto permite importar las apps desde 'apps.nombre_app'
 import sys
 
-sys.path.insert(0, str(BASE_DIR / "apps"))
+# sys.path.insert(0, str(BASE_DIR / "apps"))  # COMENTA ESTA LÍNEA
 
 SECRET_KEY = "django-insecure-tu-clave-secreta-aqui"
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
@@ -19,10 +19,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # Tus apps (ahora sin 'apps.' gracias al sys.path)
+    # Tus apps (con apps.)
     "core",
     "properties",
     "leads",
+    "accounts",
     # Terceros
     "django_filters",
 ]

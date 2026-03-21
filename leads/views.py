@@ -1,10 +1,10 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.views.generic import ListView
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 import json
-from .models import Lead
+from leads.models import Lead
 
 
 @require_POST
@@ -25,14 +25,5 @@ def track_lead(request):
     return JsonResponse({"status": "error"}, status=400)
 
 
-class LeadListView(UserPassesTestMixin, ListView):
-    model = Lead
-    template_name = "leads/dashboard.html"
-    context_object_name = "leads"
-    paginate_by = 50
-
-    def test_func(self):
-        return self.request.user.is_staff
-
-    def get_queryset(self):
-        return Lead.objects.all().select_related("property")
+class DashboardView(LoginRequiredMixin, TemplateView):
+    template_name = "dashboard.html"  # ✅ Cambia a dashboard.html (sin leads/)

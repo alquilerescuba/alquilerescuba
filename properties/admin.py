@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Property, PropertyImage, Booking
+from properties.models import Category, Property, PropertyImage, Booking
 
 
 class PropertyImageInline(admin.TabularInline):
@@ -20,10 +20,18 @@ class PropertyAdmin(admin.ModelAdmin):
         "get_location_display",
         "bedrooms",
         "rental_type",
-        "price_per_night",
+        "price_category",
+        "get_precio_display",
         "is_active",
     )
-    list_filter = ("location", "category", "rental_type", "is_active", "has_pool")
+    list_filter = (
+        "location",
+        "category",
+        "rental_type",
+        "price_category",
+        "is_active",
+        "has_pool",
+    )
     search_fields = ("title", "description", "address")
     inlines = [PropertyImageInline]
 
@@ -47,12 +55,38 @@ class PropertyAdmin(admin.ModelAdmin):
                     "has_parking",
                     "has_pool",
                     "has_ac",
+                    "has_billiard",
+                    "has_washing_machine",
+                    "has_charcoal_oven",
                 )
             },
         ),
-        ("Precios", {"fields": ("price_per_night", "price_per_month")}),
+        (
+            "Precios",
+            {
+                "fields": (
+                    "price_category",
+                    "price_per_night",
+                    "price_per_month",
+                ),
+                "description": "Selecciona la categoría de precio. Luego completa el precio correspondiente.",
+            },
+        ),
         ("Foto principal", {"fields": ("main_photo",)}),
     )
+
+    def get_precio_display(self, obj):
+        """Muestra el precio según la categoría seleccionada"""
+        if obj.price_category == "night":
+            return f"${obj.price_per_night} /noche"
+        else:
+            return f"${obj.price_per_month} /mes"
+
+    get_precio_display.short_description = "Precio"
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        """Hace que los campos de precio sean opcionales según la categoría"""
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
 
 
 @admin.register(Booking)
