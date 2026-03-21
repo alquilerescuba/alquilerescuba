@@ -10,7 +10,11 @@ import sys
 
 SECRET_KEY = "django-insecure-tu-clave-secreta-aqui"
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "alquilerescuba.pythonanywhere.com",
+]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
