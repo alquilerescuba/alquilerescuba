@@ -11,9 +11,9 @@ import sys
 SECRET_KEY = "django-insecure-tu-clave-secreta-aqui"
 DEBUG = True
 ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "alquilerescuba.pythonanywhere.com",
+    'localhost',
+    '127.0.0.1',
+    'dea4ever.pythonanywhere.com',
 ]
 
 INSTALLED_APPS = [
