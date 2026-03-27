@@ -9,257 +9,363 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="/static/css/custom.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --primary-color: #00a699;
+            --primary-dark: #008b82;
+            --primary-light: #4ecdc4;
+            --secondary-color: #ff9f4a;
+            --accent-sun: #ffb347;
+            --text-dark: #1e2a32;
+            --text-light: #6c7a8a;
+            --bg-light: #ffffff;
+            --bg-gray: #fafaf9;
+            --border-color: #eef2f2;
         }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f7f7f7;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-gray);
+            color: var(--text-dark);
+            line-height: 1.5;
         }
+        
+        /* Navbar profesional */
         .navbar {
-            background-color: white !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: var(--bg-light) !important;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
-        .navbar-brand {
+        
+        .navbar-brand img {
+            height: 32px;
+        }
+        
+        .nav-link {
+            color: var(--text-dark) !important;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+            padding: 0.5rem 1rem !important;
+        }
+        
+        .nav-link:hover {
             color: var(--primary-color) !important;
-            font-weight: bold;
         }
+        
+        .btn-outline-primary {
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+            border-radius: 40px;
+            padding: 8px 24px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+        
+/* Hero Section - compacto pero un poco más alto */
+.hero-section {
+    background: linear-gradient(135deg, #1e4b5e 0%, #2c7a6e 50%, #00a699 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+}
+
+.hero-subtitle {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 1.5rem 0;
+    }
+    
+    .hero-title {
+        font-size: 1.4rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.85rem;
+    }
+}
+        
+        /* Tarjetas estilo Airbnb */
+        .card {
+            border: none;
+            border-radius: 18px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            background: var(--bg-light);
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.12);
+        }
+        
+        .card-img-top {
+            height: 240px;
+            object-fit: cover;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+        
+        /* Filtros profesionales */
+        .filters-card {
+            border-radius: 18px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-light);
+            position: sticky;
+            top: 90px;
+            transition: box-shadow 0.2s;
+        }
+        
+        .filters-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+        }
+        
+        /* Botones */
         .btn-primary {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
         }
+        
         .btn-primary:hover {
-            background-color: #008b82;
-            border-color: #008b82;
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+            transform: translateY(-2px);
         }
-        .btn-success {
-            background-color: #25D366;
-            border-color: #25D366;
+        
+        .btn-outline-secondary {
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 500;
         }
-        .card {
-            border: none;
-            border-radius: 15px;
-            overflow: hidden;
-            transition: transform 0.2s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
-        .card-img-top {
-            height: 200px;
-            object-fit: cover;
-        }
-        .badge-amenity {
-            background-color: #f0f0f0;
-            color: #333;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            display: inline-block;
-        }
+        
+        /* Footer profesional */
         footer {
-            background-color: white;
-            padding: 30px 0;
-            margin-top: 50px;
-            border-top: 1px solid #eee;
+            background-color: var(--bg-light);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 0 2rem;
+            margin-top: 4rem;
         }
-        /* Mejoras para el calendario */
-.calendar-container {
-    background: white;
-    border-radius: 15px;
-    padding: 15px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.date-cell {
-    cursor: pointer;
-    transition: all 0.2s;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 500;
-}
-
-.date-cell:hover:not(.bg-secondary):not(.bg-light) {
-    transform: scale(1.05);
-    box-shadow: 0 2px 8px rgba(0,166,153,0.3);
-}
-
-.available-date {
-    background: linear-gradient(145deg, #00a699, #008b82);
-    color: white;
-    font-weight: 500;
-}
-
-.booked-date {
-    background: #e0e0e0;
-    color: #666;
-    cursor: not-allowed;
-    text-decoration: line-through;
-    opacity: 0.7;
-}
-
-.past-date {
-    background: #f5f5f5;
-    color: #aaa;
-    cursor: not-allowed;
-}
-
-.selected-date {
-    background: #ff5a5f !important;
-    color: white !important;
-    font-weight: bold;
-    box-shadow: 0 2px 12px rgba(255,90,95,0.4);
-}
-
-.range-date {
-    background: rgba(255,90,95,0.2) !important;
-    color: #333 !important;
-    font-weight: 500;
-}
-
-.weekday-label {
-    font-weight: 600;
-    color: #666;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.calendar-header {
-    background: linear-gradient(145deg, #f8f9fa, #e9ecef);
-    border-radius: 10px;
-    padding: 8px;
-    margin-bottom: 15px;
-}
-
-.month-nav-btn {
-    border: none;
-    background: white;
-    border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    transition: all 0.2s;
-}
-
-.month-nav-btn:hover {
-    background: #00a699;
-    color: white;
-    transform: scale(1.1);
-}
-
-.current-month {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #333;
-    margin: 0;
-}
+        
+        footer h5 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        footer a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: block;
+            margin-bottom: 0.6rem;
+            transition: color 0.2s;
+        }
+        
+        footer a:hover {
+            color: var(--primary-color);
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+            padding-top: 2rem;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            text-align: center;
+        }
+        
+        /* Badges */
+        .badge-amenity {
+            background-color: #f0f2f2;
+            color: var(--text-dark);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin-right: 6px;
+            margin-bottom: 6px;
+            display: inline-block;
+            transition: background-color 0.2s;
+        }
+        
+        .badge-amenity:hover {
+            background-color: #e4e8e8;
+        }
+        
+        /* Estrellas */
+        .star-rating {
+            display: inline-flex;
+            gap: 2px;
+        }
+        
+        .review-stars {
+            display: inline-flex;
+            gap: 2px;
+        }
+        
+       
+        /* Animaciones suaves */
+        a, button {
+            transition: all 0.2s ease;
+        }
     </style>
 </head>
 <body>
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light">
-    <div class="container">
-        <a class="navbar-brand" href="/">
-            <img src="/static/images/logo.png" alt="DEA4EVER" height="40">
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <!-- Menú izquierda (siempre visible) -->
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" id="destinosDropdown" role="button" data-bs-toggle="dropdown">
-        Destinos
-    </a>
-  <ul class="dropdown-menu">
-    <!-- Pinar del Río -->
-    <li><h6 class="dropdown-header">Pinar del Río</h6></li>
-    <li><a class="dropdown-item" href="/?location=vinales">Viñales</a></li>
-    
-    <li><hr class="dropdown-divider"></li>
-    
-    <!-- La Habana -->
-    <li><h6 class="dropdown-header">La Habana</h6></li>
-    <li><a class="dropdown-item" href="/?location=playa">Playa</a></li>
-    <li><a class="dropdown-item" href="/?location=vedado">Vedado</a></li>
-    <li><a class="dropdown-item" href="/?location=nuevo_vedado">Nuevo Vedado</a></li>
-    <li><a class="dropdown-item" href="/?location=centro_habana">Centro Habana</a></li>
-    <li><a class="dropdown-item" href="/?location=habana_vieja">Habana Vieja</a></li>
-    <li><a class="dropdown-item" href="/?location=fontanar">Fontanar</a></li>
-    <li><a class="dropdown-item" href="/?location=calabazar">Calabazar</a></li>
-    <li><a class="dropdown-item" href="/?location=boca_ciega">Boca Ciega</a></li>
-    <li><a class="dropdown-item" href="/?location=guanabo">Guanabo</a></li>
-    <li><a class="dropdown-item" href="/?location=penas_altas">Peñas Altas</a></li>
-    
-    <li><hr class="dropdown-divider"></li>
-    
-    <!-- Matanzas -->
-    <li><h6 class="dropdown-header">Matanzas</h6></li>
-    <li><a class="dropdown-item" href="/?location=varadero">Varadero</a></li>
-    <li><a class="dropdown-item" href="/?location=santa_marta">Santa Marta</a></li>
-    
-</ul>
-</li>
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="/static/images/logo.png" alt="DEA4EVER" height="32">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="destinosDropdown" role="button" data-bs-toggle="dropdown">
+                            Destinos
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><h6 class="dropdown-header">Pinar del Río</h6></li>
+                            <li><a class="dropdown-item" href="/?location=vinales">Viñales</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">La Habana</h6></li>
+                            <li><a class="dropdown-item" href="/?location=playa">Playa</a></li>
+                            <li><a class="dropdown-item" href="/?location=vedado">Vedado</a></li>
+                            <li><a class="dropdown-item" href="/?location=nuevo_vedado">Nuevo Vedado</a></li>
+                            <li><a class="dropdown-item" href="/?location=centro_habana">Centro Habana</a></li>
+                            <li><a class="dropdown-item" href="/?location=habana_vieja">Habana Vieja</a></li>
+                            <li><a class="dropdown-item" href="/?location=fontanar">Fontanar</a></li>
+                            <li><a class="dropdown-item" href="/?location=calabazar">Calabazar</a></li>
+                            <li><a class="dropdown-item" href="/?location=boca_ciega">Boca Ciega</a></li>
+                            <li><a class="dropdown-item" href="/?location=guanabo">Guanabo</a></li>
+                            <li><a class="dropdown-item" href="/?location=penas_altas">Peñas Altas</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Matanzas</h6></li>
+                            <li><a class="dropdown-item" href="/?location=varadero">Varadero</a></li>
+                            <li><a class="dropdown-item" href="/?location=santa_marta">Santa Marta</a></li>
+                        </ul>
+                    </li>
+                </ul>
                 
-            </ul>
-         <!-- Menú derecha -->
-<ul class="navbar-nav">
-    {% if user.is_authenticated %}
-        {% if user.is_superuser or user.groups.all %}
-            <li class="nav-item">
-                <a class="nav-link" href="/dashboard/">Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/">Admin</a>
-            </li>
-        {% endif %}
-        <li class="nav-item">
-            <form action="/logout/" method="post" style="display: inline;">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-link nav-link" style="border: none; background: none;">Salir</button>
-            </form>
-        </li>
-    {% else %}
-        <li class="nav-item d-flex align-items-center">
-            <a class="nav-link" href="/login/">Iniciar Sesión</a>
-        </li>
-        <li class="nav-item d-flex align-items-center">
-            <a class="btn btn-outline-primary ms-2" href="/signup/" style="border-radius: 20px;">Registrarse</a>
-        </li>
-    {% endif %}
-</ul>
-
-
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        {% if user.is_superuser or user.groups.all %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="/dashboard/">Dashboard</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin/">Admin</a>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <form action="/logout/" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link nav-link" style="border: none; background: none;">Salir</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login/">Iniciar sesión</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-outline-primary ms-2" href="/signup/">Registrarse</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <main>
         {% block content %}{% endblock %}
     </main>
 
+    <!-- Footer -->
     <footer>
         <div class="container">
             <div class="row">
-                <div class="col-md-6">
-                    <p class="text-muted">© 2026 DEA4EVER. Alquileres de confianza en Cuba.</p>
+                <div class="col-md-4 mb-4">
+                    <img src="/static/images/logo.png" alt="DEA4EVER" height="28" class="mb-3">
+                    <p class="text-muted small">La plataforma de alquileres de confianza en Cuba. Encuentra tu hogar lejos de casa en las mejores playas y ciudades.</p>
                 </div>
-                <div class="col-md-6 text-end">
-                    <p class="text-muted">Hecho en 🇨🇺</p>
+                <div class="col-md-2 mb-4">
+                    <h5>Explorar</h5>
+                    <a href="/">Inicio</a>
+                    <a href="#">Destinos</a>
+                    <a href="#">Cómo funciona</a>
+                    <a href="#">Preguntas frecuentes</a>
                 </div>
+                <div class="col-md-2 mb-4">
+                    <h5>Soporte</h5>
+                    <a href="#">Ayuda</a>
+                    <a href="#">Contacto</a>
+                    <a href="#">Términos y condiciones</a>
+                    <a href="#">Política de privacidad</a>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Síguenos</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-muted"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#" class="text-muted"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="text-muted"><i class="fab fa-twitter fa-lg"></i></a>
+                    </div>
+                    <p class="mt-3 small text-muted">Descubre Cuba a través de quienes la conocen mejor.</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 DEA4EVER. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>
