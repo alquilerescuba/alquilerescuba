@@ -301,31 +301,45 @@
                     </li>
                 </ul>
                 
-                <ul class="navbar-nav">
-                    {% if user.is_authenticated %}
-                        {% if user.is_superuser or user.groups.all %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="/dashboard/">Dashboard</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/admin/">Admin</a>
-                            </li>
-                        {% endif %}
-                        <li class="nav-item">
-                            <form action="/logout/" method="post" style="display: inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-link nav-link" style="border: none; background: none;">Salir</button>
-                            </form>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/login/">Iniciar sesión</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-outline-primary ms-2" href="/signup/">Registrarse</a>
-                        </li>
-                    {% endif %}
-                </ul>
+             <ul class="navbar-nav">
+    {% if user.is_authenticated %}
+        <!-- Nombre del usuario -->
+        <li class="nav-item">
+            <span class="nav-link" style="color: var(--primary-color) !important;">
+                <i class="fas fa-user-circle"></i> {{ user.username }}
+            </span>
+        </li>
+        
+        <!-- Admin solo para staff -->
+        {% if user.is_staff %}
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/">Admin</a>
+            </li>
+        {% endif %}
+        
+        <!-- Dashboard solo para superusuario o grupos -->
+        {% if user.is_superuser or user.groups.all %}
+            <li class="nav-item">
+                <a class="nav-link" href="/dashboard/">Dashboard</a>
+            </li>
+        {% endif %}
+        
+        <!-- Salir -->
+        <li class="nav-item">
+            <form action="/logout/" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-link nav-link" style="border: none; background: none;">Salir</button>
+            </form>
+        </li>
+    {% else %}
+        <li class="nav-item">
+            <a class="nav-link" href="/login/">Iniciar sesión</a>
+        </li>
+        <li class="nav-item">
+            <a class="btn btn-outline-primary ms-2" href="/signup/">Registrarse</a>
+        </li>
+    {% endif %}
+</ul>
             </div>
         </div>
     </nav>
