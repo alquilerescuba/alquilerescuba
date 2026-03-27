@@ -143,6 +143,19 @@ class Property(models.Model):
             return sum(r.rating for r in reviews) / reviews.count()
         return 0
 
+    @property
+    def average_rating(self):
+        """Calcula el promedio de valoraciones como en Airbnb"""
+        reviews = self.reviews.all()
+        if reviews.exists():
+            return round(sum(r.rating for r in reviews) / reviews.count(), 1)
+        return 0
+
+    @property
+    def reviews_count(self):
+        """Cantidad de valoraciones"""
+        return self.reviews.count()
+
 
 class PropertyImage(models.Model):
     property = models.ForeignKey(

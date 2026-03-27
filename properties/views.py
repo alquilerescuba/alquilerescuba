@@ -18,6 +18,11 @@ class PropertyListView(FilterView):
     def get_queryset(self):
         return Property.objects.filter(is_active=True)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Los métodos average_rating y reviews_count ya están en el modelo
+        return context
+
 
 from django.db.models import Avg  # Añade esta importación al inicio
 

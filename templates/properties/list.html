@@ -57,7 +57,7 @@
                         </select>
                     </div>
                     
-                    <!-- 4. Tipo de alquiler (CORREGIDO) -->
+                    <!-- 4. Tipo de alquiler -->
                     <div class="mb-3">
                         <label class="form-label">Tipo de alquiler</label>
                         <select name="rental_type" class="form-select">
@@ -68,22 +68,22 @@
                     </div>
                     
                     <!-- Habitaciones (exactas) -->
-<div class="mb-3">
-    <label class="form-label">Habitaciones</label>
-    <input type="number" name="bedrooms" class="form-control" value="{{ request.GET.bedrooms }}" min="1" placeholder="Ej: 3">
-    <small class="text-muted">Solo propiedades con ese número exacto</small>
-</div>
+                    <div class="mb-3">
+                        <label class="form-label">Habitaciones</label>
+                        <input type="number" name="bedrooms" class="form-control" value="{{ request.GET.bedrooms }}" min="1" placeholder="Ej: 3">
+                        <small class="text-muted">Solo propiedades con ese número exacto</small>
+                    </div>
                     
                     <!-- Categoría de precio -->
-<div class="mb-3">
-    <label class="form-label">Categoría de precio</label>
-    <select name="price_category" class="form-select" id="priceCategorySelect">
-        <option value="">Todos</option>
-        <option value="night" {% if request.GET.price_category == 'night' %}selected{% endif %}>Por noche</option>
-        <option value="month" {% if request.GET.price_category == 'month' %}selected{% endif %}>Por mes</option>
-        <option value="daypass" {% if request.GET.price_category == 'daypass' %}selected{% endif %}>Pasadía</option>
-    </select>
-</div>
+                    <div class="mb-3">
+                        <label class="form-label">Categoría de precio</label>
+                        <select name="price_category" class="form-select" id="priceCategorySelect">
+                            <option value="">Todos</option>
+                            <option value="night" {% if request.GET.price_category == 'night' %}selected{% endif %}>Por noche</option>
+                            <option value="month" {% if request.GET.price_category == 'month' %}selected{% endif %}>Por mes</option>
+                            <option value="daypass" {% if request.GET.price_category == 'daypass' %}selected{% endif %}>Pasadía</option>
+                        </select>
+                    </div>
 
                     <!-- Precio (dinámico según categoría) -->
                     <div class="mb-3" id="priceRangeDiv">
@@ -98,13 +98,13 @@
                         </div>
                     </div>
                     
-                    <!-- 7. Huéspedes -->
+                    <!-- Huéspedes -->
                     <div class="mb-3">
                         <label class="form-label">Huéspedes (mínimo)</label>
                         <input type="number" name="guests" class="form-control" value="{{ request.GET.guests }}" min="1">
                     </div>
                     
-                    <!-- 8. Amenidades -->
+                    <!-- Amenidades -->
                     <div class="mb-3">
                         <label class="form-label d-block">Amenidades</label>
                         <div class="form-check">
@@ -156,26 +156,46 @@
                                 <p class="card-text">
                                     <small class="text-muted">
                                         <i class="fas fa-map-marker-alt"></i> {{ property.get_location_display }}
-                                    </small><br>
-                                    <small class="text-muted">
-                                        <i class="fas fa-tag"></i> {{ property.category.name }} · {{ property.get_rental_type_display }}
                                     </small>
                                 </p>
+                                
+                                <!-- Valoración estilo Airbnb -->
+                                <div class="mb-2">
+                                    {% if property.reviews_count > 0 %}
+                                        <div class="d-flex align-items-center">
+                                            <div class="star-rating me-1">
+                                                {% for i in "12345"|make_list %}
+                                                    {% if forloop.counter <= property.average_rating %}
+                                                        <i class="fas fa-star" style="color: #ffc107; font-size: 0.85rem;"></i>
+                                                    {% else %}
+                                                        <i class="far fa-star" style="color: #ffc107; font-size: 0.85rem;"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            <span class="small fw-bold">{{ property.average_rating|floatformat:1 }}</span>
+                                            <span class="small text-muted ms-1">({{ property.reviews_count }})</span>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted small">✨ Nuevo</span>
+                                    {% endif %}
+                                </div>
+                                
                                 <p class="card-text">
                                     <span class="badge-amenity"><i class="fas fa-bed"></i> {{ property.bedrooms }}</span>
                                     <span class="badge-amenity"><i class="fas fa-users"></i> {{ property.guests }}</span>
                                 </p>
+                                
                                 <p class="card-text">
-    {% if property.price_category == 'night' and property.price_per_night %}
-        <strong class="h6 text-dark">${{ property.price_per_night }}</strong> <small class="text-muted">/noche</small>
-    {% elif property.price_category == 'month' and property.price_per_month %}
-        <strong class="h6 text-dark">${{ property.price_per_month }}</strong> <small class="text-muted">/mes</small>
-    {% elif property.price_category == 'daypass' and property.price_per_daypass %}
-        <strong class="h6 text-dark">${{ property.price_per_daypass }}</strong> <small class="text-muted">/pasadía</small>
-    {% else %}
-        <small class="text-muted">Consultar precio</small>
-    {% endif %}
-</p>
+                                    {% if property.price_category == 'night' and property.price_per_night %}
+                                        <strong class="h6 text-dark">${{ property.price_per_night }}</strong> <small class="text-muted">/noche</small>
+                                    {% elif property.price_category == 'month' and property.price_per_month %}
+                                        <strong class="h6 text-dark">${{ property.price_per_month }}</strong> <small class="text-muted">/mes</small>
+                                    {% elif property.price_category == 'daypass' and property.price_per_daypass %}
+                                        <strong class="h6 text-dark">${{ property.price_per_daypass }}</strong> <small class="text-muted">/pasadía</small>
+                                    {% else %}
+                                        <small class="text-muted">Consultar precio</small>
+                                    {% endif %}
+                                </p>
                             </div>
                         </div>
                     </a>

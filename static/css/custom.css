@@ -45,3 +45,8 @@
 .big-star-rating .far.fa-star {
     color: #e4e5e9;
 }
+
+.star-rating {
+    display: inline-flex;
+    gap: 2px;
+}
