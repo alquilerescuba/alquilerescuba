@@ -7,12 +7,14 @@ class ReviewForm(forms.ModelForm):
         model = Review
         fields = ["rating", "comment"]
         widgets = {
-            "rating": forms.RadioSelect(choices=Review.RATING_CHOICES),
+            "rating": forms.HiddenInput(),  # Ocultamos el campo original
             "comment": forms.Textarea(
-                attrs={"rows": 4, "placeholder": "Cuéntanos tu experiencia..."}
+                attrs={
+                    "rows": 4,
+                    "placeholder": "¿Qué te pareció la propiedad? ¿Qué destacarías?",
+                }
             ),
         }
         labels = {
-            "rating": "Tu calificación",
             "comment": "Tu comentario",
         }
