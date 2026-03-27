@@ -19,6 +19,9 @@ class PropertyListView(FilterView):
         return Property.objects.filter(is_active=True)
 
 
+from django.db.models import Avg  # Añade esta importación al inicio
+
+
 class PropertyDetailView(DetailView):
     model = Property
     template_name = "properties/detail.html"
@@ -33,6 +36,21 @@ class PropertyDetailView(DetailView):
         from django.conf import settings
 
         context["business_whatsapp"] = settings.BUSINESS_WHATSAPP
+
+        # Calcular promedio de valoraciones
+        reviews = self.object.reviews.all()
+        if reviews.exists():
+            context["average_rating"] = reviews.aggregate(Avg("rating"))["rating__avg"]
+            context["total_reviews"] = reviews.count()
+        else:
+            context["average_rating"] = 0
+            context["total_reviews"] = 0
+
+        # Para saber si el usuario ya valoró esta propiedad
+        if self.request.user.is_authenticated:
+            context["user_reviewed"] = reviews.filter(user=self.request.user).exists()
+        else:
+            context["user_reviewed"] = False
 
         return context
 
@@ -71,3 +89,36 @@ def get_booked_dates(request, property_id):
         )
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import Review
+from .forms import ReviewForm
+
+
+@login_required
+def add_review(request, pk):  # Cambia property_id por pk
+    property = get_object_or_404(Property, id=pk)
+
+    # Verificar si el usuario ya valoró esta propiedad
+    if Review.objects.filter(property=property, user=request.user).exists():
+        messages.error(request, "Ya has valorado esta propiedad anteriormente.")
+        return redirect("properties:detail", pk=pk)
+
+    if request.method == "POST":
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.property = property
+            review.user = request.user
+            review.save()
+            messages.success(request, "¡Gracias por tu valoración!")
+            return redirect("properties:detail", pk=pk)
+    else:
+        form = ReviewForm()
+
+    return render(
+        request, "properties/add_review.html", {"form": form, "property": property}
+    )

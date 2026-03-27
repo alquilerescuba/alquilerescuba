@@ -1,0 +1,47 @@
+/* Estilos para estrellas */
+.star-rating {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.star-rating .fas.fa-star,
+.star-rating .far.fa-star {
+    font-size: 1.1rem;
+    color: #ffc107;
+}
+
+.star-rating .far.fa-star {
+    color: #e4e5e9;
+}
+
+/* Estrellas en valoraciones individuales */
+.review-stars {
+    display: inline-flex;
+    gap: 2px;
+}
+
+.review-stars .fas.fa-star {
+    font-size: 0.9rem;
+    color: #ffc107;
+}
+
+.review-stars .far.fa-star {
+    font-size: 0.9rem;
+    color: #e4e5e9;
+}
+
+/* Estrellas grandes en promedio */
+.big-star-rating {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.big-star-rating .fas.fa-star,
+.big-star-rating .far.fa-star {
+    font-size: 1.3rem;
+    color: #ffc107;
+}
+
+.big-star-rating .far.fa-star {
+    color: #e4e5e9;
+}

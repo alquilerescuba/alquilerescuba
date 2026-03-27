@@ -126,6 +126,14 @@ class Property(models.Model):
     def __str__(self):
         return f"{self.title} - {self.get_location_display()}"
 
+    @property
+    def average_rating(self):
+        """Calcula el promedio de valoraciones de la propiedad"""
+        reviews = self.reviews.all()
+        if reviews.exists():
+            return sum(r.rating for r in reviews) / reviews.count()
+        return 0
+
 
 class PropertyImage(models.Model):
     property = models.ForeignKey(
@@ -168,3 +176,45 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"{self.property.title}: {self.start_date} a {self.end_date}"
+
+
+class Review(models.Model):
+    """Valoración de una propiedad por un usuario"""
+
+    RATING_CHOICES = [
+        (1, "★☆☆☆☆"),
+        (2, "★★☆☆☆"),
+        (3, "★★★☆☆"),
+        (4, "★★★★☆"),
+        (5, "★★★★★"),
+    ]
+
+    property = models.ForeignKey(
+        Property,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+        verbose_name="Propiedad",
+    )
+    user = models.ForeignKey(
+        "auth.User",
+        on_delete=models.CASCADE,
+        related_name="reviews",
+        verbose_name="Usuario",
+    )
+    rating = models.PositiveSmallIntegerField(
+        choices=RATING_CHOICES, verbose_name="Calificación"
+    )
+    comment = models.TextField(verbose_name="Comentario", max_length=500)
+    created_at = models.DateTimeField(
+        auto_now_add=True, verbose_name="Fecha de valoración"
+    )
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Última edición")
+
+    class Meta:
+        verbose_name = "Valoración"
+        verbose_name_plural = "Valoraciones"
+        ordering = ["-created_at"]
+        unique_together = ["property", "user"]  # Un usuario solo una vez por propiedad
+
+    def __str__(self):
+        return f"{self.user.username} - {self.property.title} - {self.rating}★"

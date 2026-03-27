@@ -11,4 +11,5 @@ urlpatterns = [
         views.get_booked_dates,
         name="booked-dates",
     ),
+    path("propiedad/<int:pk>/valorar/", views.add_review, name="add_review"),
 ]
