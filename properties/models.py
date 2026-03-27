@@ -20,23 +20,21 @@ class Property(models.Model):
     # Ubicaciones ordenadas por provincias
     LOCATIONS = [
         # Pinar del Río
-        ("vinales", "Viñales"),
-        # Habana
-        ("playa", "Playa"),
-        ("vedado", "Vedado"),
-        ("nuevo_vedado", "Nuevo Vedado"),
-        ("centro_habana", "Centro Habana"),
-        ("habana_vieja", "Habana Vieja"),
-        ("fontanar", "Fontanar"),
-        ("calabazar", "Calabazar"),
-        ("boca_ciega", "Boca Ciega"),
-        ("guanabo", "Guanabo"),
-        ("penas_altas", "Peñas Altas"),
+        ("vinales", "Viñales, Pinar del Río"),
+        # La Habana
+        ("playa", "Playa, La Habana"),
+        ("vedado", "Vedado, La Habana"),
+        ("nuevo_vedado", "Nuevo Vedado, La Habana"),
+        ("centro_habana", "Centro Habana, La Habana"),
+        ("habana_vieja", "Habana Vieja, La Habana"),
+        ("fontanar", "Fontanar, La Habana"),
+        ("calabazar", "Calabazar, La Habana"),
+        ("boca_ciega", "Boca Ciega, La Habana"),
+        ("guanabo", "Guanabo, La Habana"),
+        ("penas_altas", "Peñas Altas, La Habana"),
         # Matanzas
-        ("varadero", "Varadero"),
-        ("santa_marta", "Santa Marta"),
-        # Sancti Spíritus
-        ("trinidad", "Trinidad"),
+        ("varadero", "Varadero, Matanzas"),
+        ("santa_marta", "Santa Marta, Matanzas"),
     ]
 
     # Tipo de alquiler: Toda la propiedad o Por habitaciones

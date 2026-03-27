@@ -6,28 +6,46 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0002_booking'),
+        ("properties", "0002_booking"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='property',
-            name='has_billiard',
-            field=models.BooleanField(default=False, verbose_name='Billar'),
+            model_name="property",
+            name="has_billiard",
+            field=models.BooleanField(default=False, verbose_name="Billar"),
         ),
         migrations.AddField(
-            model_name='property',
-            name='has_charcoal_oven',
-            field=models.BooleanField(default=False, verbose_name='Horno al carbón'),
+            model_name="property",
+            name="has_charcoal_oven",
+            field=models.BooleanField(default=False, verbose_name="Horno al carbón"),
         ),
         migrations.AddField(
-            model_name='property',
-            name='has_washing_machine',
-            field=models.BooleanField(default=False, verbose_name='Lavadora'),
+            model_name="property",
+            name="has_washing_machine",
+            field=models.BooleanField(default=False, verbose_name="Lavadora"),
         ),
         migrations.AlterField(
-            model_name='property',
-            name='location',
-            field=models.CharField(choices=[('vinales', 'Viñales'), ('playa', 'Playa'), ('vedado', 'Vedado'), ('nuevo_vedado', 'Nuevo Vedado'), ('centro_habana', 'Centro Habana'), ('habana_vieja', 'Habana Vieja'), ('fontanar', 'Fontanar'), ('calabazar', 'Calabazar'), ('boca_ciega', 'Boca Ciega'), ('guanabo', 'Guanabo'), ('penas_altas', 'Peñas Altas'), ('varadero', 'Varadero'), ('santa_marta', 'Santa Marta'), ('trinidad', 'Trinidad')], max_length=50, verbose_name='Ubicación'),
+            model_name="property",
+            name="location",
+            field=models.CharField(
+                choices=[
+                    ("vinales", "Viñales"),
+                    ("playa", "Playa"),
+                    ("vedado", "Vedado"),
+                    ("nuevo_vedado", "Nuevo Vedado"),
+                    ("centro_habana", "Centro Habana"),
+                    ("habana_vieja", "Habana Vieja"),
+                    ("fontanar", "Fontanar"),
+                    ("calabazar", "Calabazar"),
+                    ("boca_ciega", "Boca Ciega"),
+                    ("guanabo", "Guanabo"),
+                    ("penas_altas", "Peñas Altas"),
+                    ("varadero", "Varadero"),
+                    ("santa_marta", "Santa Marta"),
+                ],
+                max_length=50,
+                verbose_name="Ubicación",
+            ),
         ),
     ]
