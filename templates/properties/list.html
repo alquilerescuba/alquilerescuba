@@ -74,15 +74,16 @@
     <small class="text-muted">Solo propiedades con ese número exacto</small>
 </div>
                     
-                    <!-- 6. Categoría de precio -->
-                    <div class="mb-3">
-                        <label class="form-label">Categoría de precio</label>
-                        <select name="price_category" class="form-select" id="priceCategorySelect">
-                            <option value="">Todos</option>
-                            <option value="night" {% if request.GET.price_category == 'night' %}selected{% endif %}>Por noche</option>
-                            <option value="month" {% if request.GET.price_category == 'month' %}selected{% endif %}>Por mes</option>
-                        </select>
-                    </div>
+                    <!-- Categoría de precio -->
+<div class="mb-3">
+    <label class="form-label">Categoría de precio</label>
+    <select name="price_category" class="form-select" id="priceCategorySelect">
+        <option value="">Todos</option>
+        <option value="night" {% if request.GET.price_category == 'night' %}selected{% endif %}>Por noche</option>
+        <option value="month" {% if request.GET.price_category == 'month' %}selected{% endif %}>Por mes</option>
+        <option value="daypass" {% if request.GET.price_category == 'daypass' %}selected{% endif %}>Pasadía</option>
+    </select>
+</div>
 
                     <!-- Precio (dinámico según categoría) -->
                     <div class="mb-3" id="priceRangeDiv">
@@ -165,14 +166,16 @@
                                     <span class="badge-amenity"><i class="fas fa-users"></i> {{ property.guests }}</span>
                                 </p>
                                 <p class="card-text">
-                                    {% if property.price_category == 'night' and property.price_per_night %}
-                                        <strong class="h6 text-dark">${{ property.price_per_night }}</strong> <small class="text-muted">/noche</small>
-                                    {% elif property.price_category == 'month' and property.price_per_month %}
-                                        <strong class="h6 text-dark">${{ property.price_per_month }}</strong> <small class="text-muted">/mes</small>
-                                    {% else %}
-                                        <small class="text-muted">Consultar precio</small>
-                                    {% endif %}
-                                </p>
+    {% if property.price_category == 'night' and property.price_per_night %}
+        <strong class="h6 text-dark">${{ property.price_per_night }}</strong> <small class="text-muted">/noche</small>
+    {% elif property.price_category == 'month' and property.price_per_month %}
+        <strong class="h6 text-dark">${{ property.price_per_month }}</strong> <small class="text-muted">/mes</small>
+    {% elif property.price_category == 'daypass' and property.price_per_daypass %}
+        <strong class="h6 text-dark">${{ property.price_per_daypass }}</strong> <small class="text-muted">/pasadía</small>
+    {% else %}
+        <small class="text-muted">Consultar precio</small>
+    {% endif %}
+</p>
                             </div>
                         </div>
                     </a>
@@ -197,6 +200,8 @@ if (priceCategorySelect) {
             priceLabel.textContent = 'Precio por noche (USD)';
         } else if (this.value === 'month') {
             priceLabel.textContent = 'Precio por mes (USD)';
+        } else if (this.value === 'daypass') {
+            priceLabel.textContent = 'Precio por pasadía (USD)';
         } else {
             priceLabel.textContent = 'Precio (USD)';
         }

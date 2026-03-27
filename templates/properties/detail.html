@@ -63,92 +63,89 @@
                 </div>
             </div>
 
-<!-- Sección de valoraciones -->
-<div class="card mb-4">
-    <div class="card-body">
-        <h3 class="h5 mb-3">
-            <i class="fas fa-star" style="color: #ffc107;"></i>
-            Valoraciones
-            {% if total_reviews > 0 %}
-                <span class="badge bg-secondary ms-2">{{ total_reviews }} reseñas</span>
-            {% endif %}
-        </h3>
-        
-        {% if total_reviews > 0 %}
-            <!-- Promedio de calificación -->
-            <div class="mb-4">
-                <div class="d-flex align-items-center">
-                    <div class="display-4 me-3" style="font-size: 2.5rem; font-weight: 500;">
-                        {{ average_rating|floatformat:1 }}
-                    </div>
-                    <div>
-                        <div class="star-rating">
-                            {% for i in "12345"|make_list %}
-                                {% if forloop.counter <= average_rating %}
-                                    <i class="fas fa-star"></i>
-                                {% else %}
-                                    <i class="far fa-star"></i>
-                                {% endif %}
-                            {% endfor %}
+            <!-- Sección de valoraciones -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="h5 mb-3">
+                        <i class="fas fa-star" style="color: #ffc107;"></i>
+                        Valoraciones
+                        {% if total_reviews > 0 %}
+                            <span class="badge bg-secondary ms-2">{{ total_reviews }} reseñas</span>
+                        {% endif %}
+                    </h3>
+                    
+                    {% if total_reviews > 0 %}
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center">
+                                <div class="display-4 me-3" style="font-size: 2.5rem; font-weight: 500;">
+                                    {{ average_rating|floatformat:1 }}
+                                </div>
+                                <div>
+                                    <div class="star-rating">
+                                        {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= average_rating %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <small class="text-muted">{{ total_reviews }} reseñas</small>
+                                </div>
+                            </div>
                         </div>
-                        <small class="text-muted">{{ total_reviews }} reseñas</small>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Lista de valoraciones -->
-            <div class="reviews-list">
-                {% for review in property.reviews.all|slice:":5" %}
-                <div class="border-bottom pb-3 mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <strong>{{ review.user.username }}</strong>
-                        <small class="text-muted">{{ review.created_at|date:"d/m/Y" }}</small>
-                    </div>
-                    <div class="review-stars mb-2">
-                        {% for i in "12345"|make_list %}
-                            {% if forloop.counter <= review.rating %}
-                                <i class="fas fa-star"></i>
-                            {% else %}
-                                <i class="far fa-star"></i>
+                        
+                        <div class="reviews-list">
+                            {% for review in property.reviews.all|slice:":5" %}
+                            <div class="border-bottom pb-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <strong>{{ review.user.username }}</strong>
+                                    <small class="text-muted">{{ review.created_at|date:"d/m/Y" }}</small>
+                                </div>
+                                <div class="review-stars mb-2">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= review.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <p class="mb-0">{{ review.comment }}</p>
+                            </div>
+                            {% endfor %}
+                            
+                            {% if total_reviews > 5 %}
+                            <div class="text-center mt-3">
+                                <a href="#" class="btn btn-sm btn-outline-secondary">Ver todas las {{ total_reviews }} reseñas</a>
+                            </div>
                             {% endif %}
-                        {% endfor %}
-                    </div>
-                    <p class="mb-0">{{ review.comment }}</p>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aún no hay valoraciones para esta propiedad.</p>
+                    {% endif %}
+                    
+                    {% if user.is_authenticated %}
+                        {% if user_reviewed %}
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-check-circle"></i> Ya has valorado esta propiedad.
+                            </div>
+                        {% else %}
+                            <div class="mt-3">
+                                <a href="{% url 'properties:add_review' property.pk %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-star"></i> Escribir una valoración
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-light mt-3 text-center">
+                            <a href="/login/?next={{ request.path }}" class="alert-link">Inicia sesión</a> para valorar esta propiedad.
+                        </div>
+                    {% endif %}
                 </div>
-                {% endfor %}
-                
-                {% if total_reviews > 5 %}
-                <div class="text-center mt-3">
-                    <a href="#" class="btn btn-sm btn-outline-secondary">Ver todas las {{ total_reviews }} reseñas</a>
-                </div>
-                {% endif %}
             </div>
-        {% else %}
-            <p class="text-muted">Aún no hay valoraciones para esta propiedad.</p>
-        {% endif %}
-        
-        <!-- Botón para valorar (solo usuarios registrados) -->
-        {% if user.is_authenticated %}
-            {% if user_reviewed %}
-                <div class="alert alert-info mt-3">
-                    <i class="fas fa-check-circle"></i> Ya has valorado esta propiedad.
-                </div>
-            {% else %}
-                <div class="mt-3">
-                    <a href="{% url 'properties:add_review' property.pk %}" class="btn btn-outline-primary">
-                        <i class="fas fa-star"></i> Escribir una valoración
-                    </a>
-                </div>
-            {% endif %}
-        {% else %}
-            <div class="alert alert-light mt-3 text-center">
-                <a href="/login/?next={{ request.path }}" class="alert-link">Inicia sesión</a> para valorar esta propiedad.
-            </div>
-        {% endif %}
-    </div>
-</div>
 
-            <!-- Calendario de disponibilidad (SOLO UNO) -->
+            <!-- Calendario de disponibilidad -->
             <div class="card mb-4 border-0 shadow-sm">
                 <div class="card-body">
                     <h3 class="h5 mb-4">
@@ -157,7 +154,6 @@
                     </h3>
                     
                     <div class="calendar-container">
-                        <!-- Cabecera del calendario -->
                         <div class="calendar-header d-flex justify-content-between align-items-center">
                             <button class="month-nav-btn" id="prevMonth">
                                 <i class="fas fa-chevron-left"></i>
@@ -168,7 +164,6 @@
                             </button>
                         </div>
                         
-                        <!-- Días de la semana -->
                         <div class="row g-1 text-center mb-3">
                             <div class="col"><span class="weekday-label">Lu</span></div>
                             <div class="col"><span class="weekday-label">Ma</span></div>
@@ -179,10 +174,8 @@
                             <div class="col"><span class="weekday-label">Do</span></div>
                         </div>
                         
-                        <!-- Cuadrícula del calendario -->
                         <div id="calendarGrid" class="row g-1"></div>
                         
-                        <!-- Leyenda -->
                         <div class="mt-4 d-flex gap-3 small">
                             <span class="badge" style="background: #00a699; color: white; padding: 6px 12px;">
                                 <i class="fas fa-check-circle me-1"></i> Disponible
@@ -196,27 +189,33 @@
                         </div>
                     </div>
                     
-                    <!-- Mensaje de fechas seleccionadas -->
                     <div id="selectedDatesMessage" class="mt-3"></div>
                 </div>
             </div>
         </div>  <!-- Cierre columna izquierda -->
         
-        <!-- Columna derecha -->
+        <!-- Columna derecha (SOLO UNA) -->
         <div class="col-lg-4">
             <div class="card sticky-top" style="top: 20px;">
                 <div class="card-body">
-                    {% if property.price_per_night %}
+                    {% if property.price_category == 'night' and property.price_per_night %}
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h5>Por noche</h5>
                         <h4>${{ property.price_per_night }}</h4>
                     </div>
                     {% endif %}
                     
-                    {% if property.price_per_month %}
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                    {% if property.price_category == 'month' and property.price_per_month %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
                         <h5>Por mes</h5>
                         <h4>${{ property.price_per_month }}</h4>
+                    </div>
+                    {% endif %}
+                    
+                    {% if property.price_category == 'daypass' and property.price_per_daypass %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5>Pasadía</h5>
+                        <h4>${{ property.price_per_daypass }}</h4>
                     </div>
                     {% endif %}
                     
@@ -238,14 +237,19 @@
                         <li class="mb-1"><i class="fas fa-bed me-2"></i> {{ property.bedrooms }} habitaciones</li>
                         <li class="mb-1"><i class="fas fa-users me-2"></i> {{ property.guests }} huéspedes</li>
                         <li class="mb-1"><i class="fas fa-bath me-2"></i> {{ property.bathrooms }} baños</li>
+                        <li class="mb-1"><i class="fas fa-tag me-2"></i> {{ property.category.name }}</li>
+                        <li class="mb-1"><i class="fas fa-home me-2"></i> {{ property.get_rental_type_display }}</li>
                     </ul>
                     
+                    <hr>
                     
+                    <h6 class="mb-2">Dirección</h6>
+                    <p class="small">{{ property.address }}</p>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
+        </div>  <!-- Cierre columna derecha -->
+    </div>  <!-- Cierre row -->
+</div>  <!-- Cierre container -->
 
 {% block extra_js %}
 <style>
@@ -372,7 +376,6 @@ function renderCalendar(month, year) {
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     
-    // Ajustar para empezar en lunes
     let startDay = firstDay === 0 ? 6 : firstDay - 1;
     
     let calendarHTML = '';
@@ -390,13 +393,11 @@ function renderCalendar(month, year) {
                 today.setHours(0,0,0,0);
                 const cellDate = new Date(dateStr);
                 
-                // Determinar clases del día
                 let cellClass = 'p-2 text-center rounded date-cell';
                 let isBooked = bookedDates.includes(dateStr);
                 let isPast = cellDate < today;
                 let isSelected = (dateStr === selectedStartDate || dateStr === selectedEndDate);
                 
-                // Verificar si está en el rango seleccionado
                 let inRange = false;
                 if (selectedStartDate && selectedEndDate) {
                     const start = new Date(selectedStartDate);
@@ -429,34 +430,26 @@ function renderCalendar(month, year) {
     }
     
     document.getElementById('calendarGrid').innerHTML = calendarHTML;
-    
-    // Actualizar mensaje de fechas seleccionadas
     updateSelectedDatesMessage();
 }
 
-// Función para seleccionar fechas
 window.selectDate = function(dateStr) {
     const date = new Date(dateStr);
     const today = new Date();
     today.setHours(0,0,0,0);
     
-    // No permitir seleccionar fechas pasadas u ocupadas
     if (date < today || bookedDates.includes(dateStr)) {
         alert('Esta fecha no está disponible');
         return;
     }
     
-    // Lógica de selección (como Airbnb)
     if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
-        // Primer clic o reinicio
         selectedStartDate = dateStr;
         selectedEndDate = null;
     } else if (!selectedEndDate) {
-        // Segundo clic
         if (dateStr > selectedStartDate) {
             selectedEndDate = dateStr;
         } else {
-            // Si selecciona una fecha anterior, reiniciamos
             selectedStartDate = dateStr;
             selectedEndDate = null;
         }
@@ -465,7 +458,6 @@ window.selectDate = function(dateStr) {
     renderCalendar(currentMonth, currentYear);
 };
 
-// Actualizar mensaje de fechas seleccionadas
 function updateSelectedDatesMessage() {
     const messageDiv = document.getElementById('selectedDatesMessage');
     if (!messageDiv) return;
@@ -489,7 +481,6 @@ function updateSelectedDatesMessage() {
     }
 }
 
-// Navegación del calendario
 document.getElementById('prevMonth').addEventListener('click', () => {
     currentMonth--;
     if (currentMonth < 0) {
@@ -512,12 +503,20 @@ document.getElementById('nextMonth').addEventListener('click', () => {
 document.getElementById('whatsappButton').addEventListener('click', function(e) {
     e.preventDefault();
     
-    let message = `Hola! Me interesa esta propiedad:%0A%0A*{{ property.title|urlencode }}*%0A{{ property.get_location_display|urlencode }}`;
+    let precioTexto = '';
+    if ('{{ property.price_category }}' === 'night') {
+        precioTexto = `Precio: ${{ property.price_per_night }}/noche`;
+    } else if ('{{ property.price_category }}' === 'month') {
+        precioTexto = `Precio: ${{ property.price_per_month }}/mes`;
+    } else if ('{{ property.price_category }}' === 'daypass') {
+        precioTexto = `Precio: ${{ property.price_per_daypass }}/pasadía`;
+    }
+    
+    let message = `Hola! *[WEB DEA4EVER]* Me interesa esta propiedad:%0A%0A*{{ property.title|urlencode }}*%0A{{ property.get_location_display|urlencode }}%0A${precioTexto}`;
     
     if (selectedStartDate && selectedEndDate) {
         message += `%0A%0A*Fechas seleccionadas:*%0A📅 Llegada: ${selectedStartDate}%0A📅 Salida: ${selectedEndDate}`;
         
-        // Verificar si están disponibles
         const start = new Date(selectedStartDate);
         const end = new Date(selectedEndDate);
         let current = new Date(start);
@@ -541,10 +540,8 @@ document.getElementById('whatsappButton').addEventListener('click', function(e) 
     
     message += `%0A%0A${window.location.href}`;
     
-    // Abrir WhatsApp
     window.open(`https://wa.me/{{ business_whatsapp }}?text=${message}`, '_blank');
     
-    // Tracking
     fetch('/leads/track/', {
         method: 'POST',
         headers: {

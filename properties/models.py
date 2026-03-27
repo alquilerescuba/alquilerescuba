@@ -84,6 +84,7 @@ class Property(models.Model):
     PRICE_CATEGORIES = [
         ("night", "Por noche"),
         ("month", "Por mes"),
+        ("daypass", "Pasadía"),
     ]
 
     price_category = models.CharField(
@@ -105,6 +106,14 @@ class Property(models.Model):
         max_digits=10,
         decimal_places=2,
         verbose_name="Precio por mes (USD)",
+        null=True,
+        blank=True,
+    )
+
+    price_per_daypass = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Precio por pasadía (USD)",
         null=True,
         blank=True,
     )

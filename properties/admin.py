@@ -68,6 +68,7 @@ class PropertyAdmin(admin.ModelAdmin):
                     "price_category",
                     "price_per_night",
                     "price_per_month",
+                    "price_per_daypass",
                 ),
                 "description": "Selecciona la categoría de precio. Luego completa el precio correspondiente.",
             },
