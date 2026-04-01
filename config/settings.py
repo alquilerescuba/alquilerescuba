@@ -11,9 +11,9 @@ import sys
 SECRET_KEY = "django-insecure-tu-clave-secreta-aqui"
 DEBUG = True
 ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    'dea4ever.pythonanywhere.com',
+    "localhost",
+    "127.0.0.1",
+    "dea4ever.pythonanywhere.com",
 ]
 
 INSTALLED_APPS = [
@@ -23,7 +23,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # Tus apps (con apps.)
+    "whitenoise.runserver_nostatic",  # 👈 AÑADIDO para Render
+    # Tus apps
     "core",
     "properties",
     "leads",
@@ -34,6 +35,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # 👈 AÑADIDO para Render
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -94,3 +96,22 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Número de WhatsApp del dueño (CAMBIA ESTO)
 BUSINESS_WHATSAPP = "+5354026428"
+
+# ========== CONFIGURACIÓN PARA RENDER (AÑADIDO) ==========
+import dj_database_url
+
+if "RENDER" in os.environ:
+    DEBUG = False
+    ALLOWED_HOSTS = [".onrender.com"]
+
+    # Base de datos desde DATABASE_URL (Render la inyecta automáticamente)
+    DATABASES = {"default": dj_database_url.config(conn_max_age=600, ssl_require=True)}
+
+    # Archivos estáticos con WhiteNoise (ya configurado arriba)
+    STATIC_URL = "/static/"
+    STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+    # Archivos media (fotos)
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
