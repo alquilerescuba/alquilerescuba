@@ -1,7 +1,18 @@
+from decouple import config
 import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# ========== CARGAR VARIABLES DE ENTORNO PRIMERO ==========
+# Esto debe ir ANTES de cualquier configuración que use estas variables
+if not os.environ.get("AWS_ACCESS_KEY_ID"):
+    os.environ["AWS_ACCESS_KEY_ID"] = config("AWS_ACCESS_KEY_ID", default="")
+    os.environ["AWS_SECRET_ACCESS_KEY"] = config("AWS_SECRET_ACCESS_KEY", default="")
+    os.environ["AWS_STORAGE_BUCKET_NAME"] = config(
+        "AWS_STORAGE_BUCKET_NAME", default="dea4ever-images"
+    )
+    os.environ["AWS_S3_ENDPOINT_URL"] = config("AWS_S3_ENDPOINT_URL", default="")
 
 # IMPORTANTE: Esto permite importar las apps desde 'apps.nombre_app'
 import sys
@@ -23,7 +34,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "whitenoise.runserver_nostatic",  # 👈 AÑADIDO para Render
+    "whitenoise.runserver_nostatic",
+    "storages",
     # Tus apps
     "core",
     "properties",
@@ -35,7 +47,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # 👈 AÑADIDO para Render
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -89,29 +101,46 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Número de WhatsApp del dueño (CAMBIA ESTO)
 BUSINESS_WHATSAPP = "+5354026428"
 
-# ========== CONFIGURACIÓN PARA RENDER (AÑADIDO) ==========
+# ========== CONFIGURACIÓN PARA RENDER ==========
 import dj_database_url
 
 if "RENDER" in os.environ:
     DEBUG = False
     ALLOWED_HOSTS = [".onrender.com"]
 
-    # Base de datos desde DATABASE_URL (Render la inyecta automáticamente)
     DATABASES = {"default": dj_database_url.config(conn_max_age=600, ssl_require=True)}
 
-    # Archivos estáticos con WhiteNoise (ya configurado arriba)
     STATIC_URL = "/static/"
     STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-    # Archivos media (fotos)
+# ========== CONFIGURACIÓN PARA CLOUDFLARE R2 ==========
+if "AWS_ACCESS_KEY_ID" in os.environ and os.environ["AWS_ACCESS_KEY_ID"]:
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+    AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = os.environ.get(
+        "AWS_STORAGE_BUCKET_NAME", "dea4ever-images"
+    )
+    AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL")
+
+    AWS_S3_REGION_NAME = "auto"
+    AWS_S3_SIGNATURE_VERSION = "s3v4"
+    AWS_DEFAULT_ACL = "public-read"
+    AWS_QUERYSTRING_AUTH = False
+    AWS_S3_OBJECT_PARAMETERS = {
+        "CacheControl": "max-age=86400",
+    }
+
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.r2.dev"
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
+else:
+    # Fallback para local sin R2
     MEDIA_URL = "/media/"
-    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+    MEDIA_ROOT = BASE_DIR / "media"
