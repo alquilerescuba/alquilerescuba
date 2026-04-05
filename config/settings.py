@@ -141,3 +141,29 @@ AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.r2.dev"
 MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
 
 print(f"🔧 Usando R2: {MEDIA_URL}")
+
+# ========== PRUEBA DE CONEXIÓN A R2 (temporal) ==========
+if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
+    import boto3
+    from botocore.client import Config
+
+    try:
+        s3_client = boto3.client(
+            "s3",
+            endpoint_url=AWS_S3_ENDPOINT_URL,
+            aws_access_key_id=AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+            config=Config(signature_version="s3v4"),
+        )
+        # Intenta subir un archivo de prueba
+        s3_client.put_object(
+            Bucket=AWS_STORAGE_BUCKET_NAME,
+            Key="test.txt",
+            Body=b"Test content",
+            ACL="public-read",
+        )
+        print(
+            f"✅ Conexión a R2 exitosa. Archivo test.txt subido a {AWS_STORAGE_BUCKET_NAME}"
+        )
+    except Exception as e:
+        print(f"❌ Error conectando a R2: {e}")
