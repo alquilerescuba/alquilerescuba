@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.files.storage import default_storage
 
 
 class Category(models.Model):
@@ -119,7 +120,7 @@ class Property(models.Model):
     )
 
     main_photo = models.ImageField(
-        upload_to="properties/", verbose_name="Foto principal"
+        upload_to="properties/", storage=default_storage, verbose_name="Foto principal"
     )
 
     is_active = models.BooleanField(default=True, verbose_name="Activa")
@@ -134,14 +135,6 @@ class Property(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.get_location_display()}"
-
-    @property
-    def average_rating(self):
-        """Calcula el promedio de valoraciones de la propiedad"""
-        reviews = self.reviews.all()
-        if reviews.exists():
-            return sum(r.rating for r in reviews) / reviews.count()
-        return 0
 
     @property
     def average_rating(self):
@@ -164,7 +157,9 @@ class PropertyImage(models.Model):
         on_delete=models.CASCADE,
         verbose_name="Propiedad",
     )
-    image = models.ImageField(upload_to="properties/gallery/", verbose_name="Imagen")
+    image = models.ImageField(
+        upload_to="properties/gallery/", storage=default_storage, verbose_name="Imagen"
+    )
     caption = models.CharField(max_length=100, blank=True, verbose_name="Pie de foto")
 
     class Meta:
