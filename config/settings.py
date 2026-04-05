@@ -169,3 +169,22 @@ if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
         )
     except Exception as e:
         print(f"❌ Error conectando a R2: {e}")
+
+
+# ========== DEBUG: VERIFICAR CONFIGURACIÓN ==========
+print("=" * 50)
+print("🔍 VERIFICANDO CONFIGURACIÓN DE R2")
+print(f"DEFAULT_FILE_STORAGE: {DEFAULT_FILE_STORAGE}")
+print(
+    f"AWS_ACCESS_KEY_ID: {AWS_ACCESS_KEY_ID[:10]}..."
+    if AWS_ACCESS_KEY_ID
+    else "❌ No existe"
+)
+print(
+    f"AWS_SECRET_ACCESS_KEY: {'✅ Existe' if AWS_SECRET_ACCESS_KEY else '❌ No existe'}"
+)
+print(f"AWS_STORAGE_BUCKET_NAME: {AWS_STORAGE_BUCKET_NAME}")
+print(f"AWS_S3_ENDPOINT_URL: {AWS_S3_ENDPOINT_URL}")
+print(f"AWS_S3_CUSTOM_DOMAIN: {AWS_S3_CUSTOM_DOMAIN}")
+print(f"MEDIA_URL: {MEDIA_URL}")
+print("=" * 50)
