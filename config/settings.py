@@ -1,14 +1,14 @@
 from decouple import config
 import os
 from pathlib import Path
-
-# Forzar uso de Cloudflare R2
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+import sys
+import dj_database_url
+import boto3
+from botocore.client import Config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ========== CARGAR VARIABLES DE ENTORNO PRIMERO ==========
-# Esto debe ir ANTES de cualquier configuración que use estas variables
+# ========== CARGAR VARIABLES DE ENTORNO ==========
 if not os.environ.get("AWS_ACCESS_KEY_ID"):
     os.environ["AWS_ACCESS_KEY_ID"] = config("AWS_ACCESS_KEY_ID", default="")
     os.environ["AWS_SECRET_ACCESS_KEY"] = config("AWS_SECRET_ACCESS_KEY", default="")
@@ -16,20 +16,15 @@ if not os.environ.get("AWS_ACCESS_KEY_ID"):
         "AWS_STORAGE_BUCKET_NAME", default="dea4ever-images"
     )
     os.environ["AWS_S3_ENDPOINT_URL"] = config("AWS_S3_ENDPOINT_URL", default="")
-
-# IMPORTANTE: Esto permite importar las apps desde 'apps.nombre_app'
-import sys
-
-# sys.path.insert(0, str(BASE_DIR / "apps"))  # COMENTA ESTA LÍNEA
+    os.environ["AWS_S3_CUSTOM_DOMAIN"] = config(
+        "AWS_S3_CUSTOM_DOMAIN", default="pub-1fe93bd268f646bf9c370e43aad1ed3b.r2.dev"
+    )
 
 SECRET_KEY = "django-insecure-tu-clave-secreta-aqui"
 DEBUG = True
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "dea4ever.pythonanywhere.com",
-]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "dea4ever.pythonanywhere.com"]
 
+# ========== APLICACIONES ==========
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -39,12 +34,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "whitenoise.runserver_nostatic",
     "storages",
-    # Tus apps
     "core",
     "properties",
     "leads",
     "accounts",
-    # Terceros
     "django_filters",
 ]
 
@@ -79,55 +72,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
-]
-
-LANGUAGE_CODE = "es-es"
-TIME_ZONE = "America/Havana"
-USE_I18N = True
-USE_TZ = True
-
-STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# Número de WhatsApp del dueño (CAMBIA ESTO)
-BUSINESS_WHATSAPP = "+5354026428"
-
-# ========== CONFIGURACIÓN PARA RENDER ==========
-import dj_database_url
-
+# ========== BASE DE DATOS ==========
 if "RENDER" in os.environ:
     DEBUG = False
     ALLOWED_HOSTS = [".onrender.com"]
-
     DATABASES = {"default": dj_database_url.config(conn_max_age=600, ssl_require=True)}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
-    STATIC_URL = "/static/"
-    STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# ========== ARCHIVOS ESTÁTICOS ==========
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+# ========== ARCHIVOS MEDIA (CLOUDFLARE R2) ==========
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
-# ========== CONFIGURACIÓN PARA CLOUDFLARE R2 ==========
-# Usar siempre R2 (sin condiciones)
-
-
-# Configuración de Cloudflare R2
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME", "dea4ever-images")
@@ -144,11 +110,8 @@ MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
 
 print(f"🔧 Usando R2: {MEDIA_URL}")
 
-# ========== PRUEBA DE CONEXIÓN A R2 (temporal) ==========
+# ========== VERIFICACIÓN DE CONEXIÓN A R2 ==========
 if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
-    import boto3
-    from botocore.client import Config
-
     try:
         s3_client = boto3.client(
             "s3",
@@ -157,7 +120,6 @@ if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
             aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
             config=Config(signature_version="s3v4"),
         )
-        # Intenta subir un archivo de prueba
         s3_client.put_object(
             Bucket=AWS_STORAGE_BUCKET_NAME,
             Key="test.txt",
@@ -170,21 +132,22 @@ if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
     except Exception as e:
         print(f"❌ Error conectando a R2: {e}")
 
+# ========== OTRAS CONFIGURACIONES ==========
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
 
-# ========== DEBUG: VERIFICAR CONFIGURACIÓN ==========
-print("=" * 50)
-print("🔍 VERIFICANDO CONFIGURACIÓN DE R2")
-print(f"DEFAULT_FILE_STORAGE: {DEFAULT_FILE_STORAGE}")
-print(
-    f"AWS_ACCESS_KEY_ID: {AWS_ACCESS_KEY_ID[:10]}..."
-    if AWS_ACCESS_KEY_ID
-    else "❌ No existe"
-)
-print(
-    f"AWS_SECRET_ACCESS_KEY: {'✅ Existe' if AWS_SECRET_ACCESS_KEY else '❌ No existe'}"
-)
-print(f"AWS_STORAGE_BUCKET_NAME: {AWS_STORAGE_BUCKET_NAME}")
-print(f"AWS_S3_ENDPOINT_URL: {AWS_S3_ENDPOINT_URL}")
-print(f"AWS_S3_CUSTOM_DOMAIN: {AWS_S3_CUSTOM_DOMAIN}")
-print(f"MEDIA_URL: {MEDIA_URL}")
-print("=" * 50)
+LANGUAGE_CODE = "es-es"
+TIME_ZONE = "America/Havana"
+USE_I18N = True
+USE_TZ = True
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+BUSINESS_WHATSAPP = "+5354026428"
+
+print("✅ Configuración cargada correctamente")
