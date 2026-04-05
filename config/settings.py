@@ -151,3 +151,15 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 BUSINESS_WHATSAPP = "+5354026428"
 
 print("✅ Configuración cargada correctamente")
+
+
+# ========== PRUEBA DE SUBIDA CON DJANGO ==========
+if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
+    from django.core.files.base import ContentFile
+    from django.core.files.storage import default_storage
+
+    try:
+        default_storage.save("test-django.txt", ContentFile(b"Test from Django"))
+        print("✅ Django puede escribir en R2")
+    except Exception as e:
+        print(f"❌ Django NO puede escribir en R2: {e}")
