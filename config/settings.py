@@ -137,7 +137,7 @@ AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "max-age=86400",
 }
 
-AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.r2.dev"
+AWS_S3_CUSTOM_DOMAIN = "pub-1fe93bd268f646bf9c370e43aad1ed3b.r2.dev"
 MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
 
 print(f"🔧 Usando R2: {MEDIA_URL}")
