@@ -53,7 +53,8 @@ class Property(models.Model):
     price_per_month = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Precio por mes (USD)")
     price_per_daypass = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Precio por pasadía (USD)")
 
-    main_photo = models.ImageField(upload_to="properties/", verbose_name="Foto principal")
+    # Changed upload_to to "" to match root bucket access
+    main_photo = models.ImageField(upload_to="", verbose_name="Foto principal")
     is_active = models.BooleanField(default=True, verbose_name="Activa")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -73,7 +74,8 @@ class Property(models.Model):
 
 class PropertyImage(models.Model):
     property = models.ForeignKey(Property, related_name="images", on_delete=models.CASCADE)
-    image = models.ImageField(upload_to="properties/gallery/", verbose_name="Imagen")
+    # Changed upload_to to ""
+    image = models.ImageField(upload_to="", verbose_name="Imagen")
     caption = models.CharField(max_length=100, blank=True)
 
 class Booking(models.Model):

@@ -8,8 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-tu-clave-secreta-aqui")
 DEBUG = config("DEBUG", default=False, cast=bool)
 
-# Corregido: dominios limpios para producción
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".onrender.com", "dea4ever.pythonanywhere.com"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".onrender.com", "://pythonanywhere.com"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -58,19 +57,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# Base de Datos (Render Detect)
+# Database
 if "RENDER" in os.environ:
     DATABASES = {"default": dj_database_url.config(conn_max_age=600, ssl_require=True)}
 else:
     DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
 
-# Estáticos (WhiteNoise)
+# Statics
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # ========== CLOUDFLARE R2 CONFIG (MEDIA) ==========
-# Apuntamos a tu archivo config/storage.py
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
@@ -82,12 +80,15 @@ AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_S3_FILE_OVERWRITE = False
 AWS_QUERYSTRING_AUTH = False
 
-AWS_S3_CUSTOM_DOMAIN = config("AWS_S3_CUSTOM_DOMAIN") 
-# Importante: /media/ porque tu storage.py tiene esa location
-MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
-MEDIA_ROOT = BASE_DIR / "media" # Necesario para evitar errores de validación
+# R2 CRITICAL FIXES
+AWS_DEFAULT_ACL = None  # Prevents R2 from rejecting the upload
+AWS_S3_VERIFY = True
 
-# Internacionalización
+AWS_S3_CUSTOM_DOMAIN = config("AWS_S3_CUSTOM_DOMAIN") 
+MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# Internationalization
 LANGUAGE_CODE = "es-es"
 TIME_ZONE = "America/Havana"
 USE_I18N = True
