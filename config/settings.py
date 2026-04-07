@@ -71,7 +71,7 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # ========== CLOUDFLARE R2 CONFIG (MEDIA) ==========
 # Apuntamos a tu archivo config/storage.py
-DEFAULT_FILE_STORAGE = "config.storage.MediaStorage"
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
@@ -84,7 +84,7 @@ AWS_QUERYSTRING_AUTH = False
 
 AWS_S3_CUSTOM_DOMAIN = config("AWS_S3_CUSTOM_DOMAIN") 
 # Importante: /media/ porque tu storage.py tiene esa location
-MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
 MEDIA_ROOT = BASE_DIR / "media" # Necesario para evitar errores de validación
 
 # Internacionalización
