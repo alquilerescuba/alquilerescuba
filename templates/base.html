@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}DEA4EVER - Alquileres en Cuba{% endblock %}</title>
     
-    <!-- Favicons -->
+    <!-- Favicons con etiquetas estáticas corregidas -->
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
     <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
     
@@ -34,7 +34,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: var(--bg-gray);
             color: var(--text-dark);
             line-height: 1.5;
@@ -43,65 +43,119 @@
         .navbar {
             background-color: var(--bg-light) !important;
             border-bottom: 1px solid var(--border-color);
-            padding: 0.8rem 0;
+            padding: 1rem 0;
             position: sticky;
             top: 0;
             z-index: 1000;
         }
         
-        .navbar-brand img { height: 50px; width: auto; object-fit: contain; }
+        .navbar-brand img { height: 50px; width: auto; }
         
         .nav-link {
             color: var(--text-dark) !important;
             font-weight: 500;
+            font-size: 0.95rem;
             transition: color 0.2s;
+            padding: 0.5rem 1rem !important;
         }
         
         .nav-link:hover { color: var(--primary-color) !important; }
-
+        
+        .btn-outline-primary {
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+            border-radius: 40px;
+            padding: 8px 24px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+        
         .hero-section {
             background: linear-gradient(135deg, #1e4b5e 0%, #2c7a6e 50%, #00a699 100%);
-            color: white; padding: 3rem 0; text-align: center;
+            color: white; padding: 2rem 0; margin-bottom: 2rem; text-align: center;
         }
 
-        footer {
-            background-color: var(--bg-light);
-            border-top: 1px solid var(--border-color);
-            padding: 3rem 0;
-            margin-top: 4rem;
-        }
+        .hero-title { font-size: 1.8rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.01em; }
+        .hero-subtitle { font-size: 0.95rem; opacity: 0.9; max-width: 500px; margin: 0 auto; }
 
+        .card {
+            border: none; border-radius: 18px; overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: var(--bg-light);
+        }
+        
+        .card:hover { transform: translateY(-4px); box-shadow: 0 20px 30px -12px rgba(0,0,0,0.12); }
+        .card-img-top { height: 240px; object-fit: cover; }
+        .card-body { padding: 1rem; }
+        .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-dark); }
+        
+        .filters-card {
+            border-radius: 18px; border: 1px solid var(--border-color);
+            background: var(--bg-light); position: sticky; top: 90px; transition: box-shadow 0.2s;
+        }
+        
+        .filters-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+        
+        .btn-primary {
+            background-color: var(--primary-color); border-color: var(--primary-color);
+            border-radius: 12px; padding: 12px; font-weight: 600; transition: all 0.2s;
+        }
+        
+        .btn-primary:hover { background-color: var(--primary-dark); border-color: var(--primary-dark); transform: translateY(-2px); }
+        .btn-outline-secondary { border-radius: 12px; padding: 12px; font-weight: 500; }
+        
+        footer { background-color: var(--bg-light); border-top: 1px solid var(--border-color); padding: 3rem 0 2rem; margin-top: 4rem; }
+        footer h5 { font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-dark); letter-spacing: 0.5px; text-transform: uppercase; }
+        footer a { color: var(--text-light); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 0.6rem; transition: color 0.2s; }
+        footer a:hover { color: var(--primary-color); }
+        
         .footer-bottom {
-            border-top: 1px solid var(--border-color);
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            font-size: 0.8rem;
-            text-align: center;
-            color: var(--text-light);
+            border-top: 1px solid var(--border-color); margin-top: 2rem; padding-top: 2rem;
+            font-size: 0.75rem; color: var(--text-light); text-align: center;
         }
+        
+        .badge-amenity {
+            background-color: #f0f2f2; color: var(--text-dark); padding: 5px 12px;
+            border-radius: 20px; font-size: 0.75rem; margin-right: 6px; margin-bottom: 6px;
+            display: inline-block; transition: background-color 0.2s;
+        }
+        
+        .badge-amenity:hover { background-color: #e4e8e8; }
+        .star-rating, .review-stars { display: inline-flex; gap: 2px; }
+        a, button { transition: all 0.2s ease; }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand" href="/">
+                <!-- Cambio a etiqueta static para Render -->
                 <img src="{% static 'images/logo-nuevo.png' %}" alt="DEA4EVER">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="/">Inicio</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/propiedades/">Propiedades</a>
                     </li>
-                    <li class="nav-item ms-lg-3">
-                        <!-- CORRECCIÓN: wa.me/ -->
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
                         <a href="https://wa.me{{ BUSINESS_WHATSAPP }}" class="btn btn-outline-primary rounded-pill">
                             <i class="fab fa-whatsapp me-2"></i>Contacto
                         </a>
@@ -111,42 +165,38 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
+    <!-- Bloque de contenido corregido -->
+    {% block content %}
+    {% endblock %}
 
     <!-- Footer -->
     <footer>
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-4">
-                    <h5 class="fw-bold mb-3">DEA4EVER</h5>
-                    <p class="text-muted small">Encuentra los mejores alojamientos en Cuba con un servicio profesional y directo.</p>
+                    <h5>DEA4EVER</h5>
+                    <p class="text-light small" style="color: var(--text-light) !important;">Encuentra los mejores alojamientos en Cuba.</p>
                 </div>
                 <div class="col-md-4 mb-4">
-                    <h5 class="fw-bold mb-3">Enlaces rápidos</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="/" class="text-decoration-none text-muted small">Inicio</a></li>
-                        <li><a href="/admin/" class="text-decoration-none text-muted small">Administración</a></li>
-                    </ul>
+                    <h5>Enlaces</h5>
+                    <a href="/">Inicio</a>
+                    <a href="/admin/">Administración</a>
                 </div>
-                <div class="col-md-4 mb-4 text-md-end">
-                    <h5 class="fw-bold mb-3">Síguenos</h5>
-                    <div class="d-flex justify-content-md-end gap-3">
-                        <a href="#" class="text-muted"><i class="fab fa-facebook fa-lg"></i></a>
-                        <a href="#" class="text-muted"><i class="fab fa-instagram fa-lg"></i></a>
+                <div class="col-md-4 mb-4">
+                    <h5>Síguenos</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
                     </div>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p class="mb-0">&copy; 2026 DEA4EVER. Todos los derechos reservados.</p>
+                <p>&copy; 2026 DEA4EVER. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>
 
-    <!-- Scripts - CORRECCIÓN: Bundle completo de Bootstrap -->
+    <!-- Scripts necesarios para dropdowns y móvil -->
     <script src="https://jsdelivr.net"></script>
     {% block extra_js %}{% endblock %}
 </body>
