@@ -1,6 +1,6 @@
-from decouple import config
 import os
 from pathlib import Path
+from decouple import config
 import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,7 +8,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-tu-clave-secreta-aqui")
 DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".onrender.com", "://pythonanywhere.com"]
+# MEJORA: Evita errores de split si la variable no existe
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -58,35 +59,52 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
-if "RENDER" in os.environ:
+if "RENDER" in os.environ or config("DATABASE_URL", default=None):
     DATABASES = {"default": dj_database_url.config(conn_max_age=600, ssl_require=True)}
 else:
-    DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
-# Statics
+# Static Files
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# ========== CLOUDFLARE R2 CONFIG (MEDIA) ==========
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
+# CLOUDFLARE R2 DATA
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_ENDPOINT_URL = config("AWS_S3_ENDPOINT_URL")
-AWS_S3_REGION_NAME = "auto"
-AWS_S3_SIGNATURE_VERSION = "s3v4"
-AWS_S3_FILE_OVERWRITE = False
-AWS_QUERYSTRING_AUTH = False
+AWS_S3_CUSTOM_DOMAIN = config("AWS_S3_CUSTOM_DOMAIN")
 
-# R2 CRITICAL FIXES
-AWS_DEFAULT_ACL = None  # Prevents R2 from rejecting the upload
-AWS_S3_VERIFY = True
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {
+            "access_key": AWS_ACCESS_KEY_ID,
+            "secret_key": AWS_SECRET_ACCESS_KEY,
+            "bucket_name": AWS_STORAGE_BUCKET_NAME,
+            "endpoint_url": AWS_S3_ENDPOINT_URL,
+            "custom_domain": AWS_S3_CUSTOM_DOMAIN,
+            "region_name": "auto",
+            "signature_version": "s3v4",
+            "file_overwrite": False,
+            "object_parameters": {
+                "CacheControl": "max-age=86400",
+            },
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
-AWS_S3_CUSTOM_DOMAIN = config("AWS_S3_CUSTOM_DOMAIN") 
 MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
-MEDIA_ROOT = BASE_DIR / "media"
+
 
 # Internationalization
 LANGUAGE_CODE = "es-es"
@@ -94,4 +112,6 @@ TIME_ZONE = "America/Havana"
 USE_I18N = True
 USE_TZ = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Otros
 BUSINESS_WHATSAPP = "+5354026428"
