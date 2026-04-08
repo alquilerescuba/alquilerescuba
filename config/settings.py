@@ -8,12 +8,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-tu-clave-secreta-aqui")
 DEBUG = config("DEBUG", default=False, cast=bool)
 
-# settings.py - Replace your current ALLOWED_HOSTS line with this:
+# Limpieza de espacios en dominios
 ALLOWED_HOSTS = [
     host.strip()
     for host in config("ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",")
 ]
-
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -33,7 +32,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Debe ser el segundo
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -55,6 +54,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "core.context_processors.global_settings",  # Para el WhatsApp global
             ],
         },
     },
@@ -73,15 +73,13 @@ else:
         }
     }
 
-# Static Files
+# Static Files (WhiteNoise)
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
-WHITENOISE_USE_FINDERS = True
-WHITENOISE_MANIFEST_STRICT = False  # Evita que la app rompa si no encuentra un archivo
-
+STATICFILES_DIRS = [BASE_DIR / "static"]
+WHITENOISE_MANIFEST_STRICT = (
+    False  # Crucial para evitar errores 500 por archivos faltantes
+)
 
 # CLOUDFLARE R2 DATA
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
@@ -102,9 +100,6 @@ STORAGES = {
             "region_name": "auto",
             "signature_version": "s3v4",
             "file_overwrite": False,
-            "object_parameters": {
-                "CacheControl": "max-age=86400",
-            },
         },
     },
     "staticfiles": {
@@ -114,13 +109,11 @@ STORAGES = {
 
 MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
 
-
-# Internationalization
 LANGUAGE_CODE = "es-es"
 TIME_ZONE = "America/Havana"
 USE_I18N = True
 USE_TZ = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Otros
+# Configuración de negocio
 BUSINESS_WHATSAPP = "+5354026428"

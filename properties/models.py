@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
+from django.db.models import Avg
 
 
 class Category(models.Model):
@@ -55,6 +57,7 @@ class Property(models.Model):
         verbose_name="Tipo de alquiler",
     )
 
+    # Comodidades
     has_wifi = models.BooleanField(default=False, verbose_name="WiFi")
     has_tv = models.BooleanField(default=False, verbose_name="TV")
     has_kitchen = models.BooleanField(default=False, verbose_name="Cocina")
@@ -67,6 +70,7 @@ class Property(models.Model):
         default=False, verbose_name="Horno al carbón"
     )
 
+    # Precios con validación para no ser negativos
     price_category = models.CharField(
         max_length=10,
         choices=PRICE_CATEGORIES,
@@ -78,6 +82,7 @@ class Property(models.Model):
         decimal_places=2,
         null=True,
         blank=True,
+        validators=[MinValueValidator(0)],
         verbose_name="Precio por noche (USD)",
     )
     price_per_month = models.DecimalField(
@@ -85,6 +90,7 @@ class Property(models.Model):
         decimal_places=2,
         null=True,
         blank=True,
+        validators=[MinValueValidator(0)],
         verbose_name="Precio por mes (USD)",
     )
     price_per_daypass = models.DecimalField(
@@ -92,14 +98,15 @@ class Property(models.Model):
         decimal_places=2,
         null=True,
         blank=True,
+        validators=[MinValueValidator(0)],
         verbose_name="Precio por pasadía (USD)",
     )
 
-    # Changed upload_to to "" to match root bucket access
-    # property/models.py
+    # Fotos en carpetas organizadas en R2
     main_photo = models.ImageField(
-        upload_to="properties/main", verbose_name="Foto principal"
+        upload_to="properties/main/", verbose_name="Foto principal"
     )
+
     is_active = models.BooleanField(default=True, verbose_name="Activa")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -114,20 +121,19 @@ class Property(models.Model):
 
     @property
     def average_rating(self):
-        reviews = self.reviews.all()
-        return (
-            round(sum(r.rating for r in reviews) / reviews.count(), 1)
-            if reviews.exists()
-            else 0
-        )
+        avg = self.reviews.aggregate(Avg("rating"))["rating__avg"]
+        return round(avg, 1) if avg else 0
 
 
 class PropertyImage(models.Model):
     property = models.ForeignKey(
         Property, related_name="images", on_delete=models.CASCADE
     )
-    image = models.ImageField(upload_to="properties/gallery", verbose_name="Imagen")
+    image = models.ImageField(upload_to="properties/gallery/", verbose_name="Imagen")
     caption = models.CharField(max_length=100, blank=True)
+
+    def __str__(self):
+        return f"Foto de {self.property.title}"
 
 
 class Booking(models.Model):
@@ -141,6 +147,9 @@ class Booking(models.Model):
     guest_phone = models.CharField(max_length=20)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Reserva {self.id} - {self.property.title}"
+
 
 class Review(models.Model):
     property = models.ForeignKey(
@@ -148,10 +157,13 @@ class Review(models.Model):
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     rating = models.PositiveSmallIntegerField(
-        choices=[(i, f"{i}★") for i in range(1, 6)]
+        choices=[(i, f"{i}★") for i in range(1, 6)], validators=[MinValueValidator(1)]
     )
     comment = models.TextField(max_length=500)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ["property", "user"]
+
+    def __str__(self):
+        return f"{self.user.username} en {self.property.title}"
