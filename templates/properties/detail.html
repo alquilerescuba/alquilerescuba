@@ -21,7 +21,7 @@
     <div class="row">
         <!-- Columna izquierda -->
         <div class="col-lg-8">
-            <!-- Imagen Principal Segura -->
+            <!-- PROTECCIÓN IMAGEN PRINCIPAL R2 -->
             {% if property.main_photo %}
                 <img src="{{ property.main_photo.url }}" class="img-fluid rounded-3 mb-3 w-100" 
                      alt="{{ property.title }}" style="max-height: 500px; object-fit: cover;">
@@ -30,7 +30,6 @@
                      style="max-height: 500px; object-fit: contain; background: #eee; padding: 40px;">
             {% endif %}
             
-            <!-- Galería Segura -->
             {% if property.images.all %}
             <div class="row mb-4">
                 {% for image in property.images.all %}
@@ -58,15 +57,13 @@
                                 {% if property.has_wifi %}<li class="mb-2"><i class="fas fa-wifi text-success me-2"></i> WiFi</li>{% endif %}
                                 {% if property.has_tv %}<li class="mb-2"><i class="fas fa-tv text-success me-2"></i> TV</li>{% endif %}
                                 {% if property.has_kitchen %}<li class="mb-2"><i class="fas fa-utensils text-success me-2"></i> Cocina</li>{% endif %}
-                                {% if property.has_ac %}<li class="mb-2"><i class="fas fa-snowflake text-success me-2"></i> Aire acondicionado</li>{% endif %}
                             </ul>
                         </div>
                         <div class="col-md-6">
                             <ul class="list-unstyled">
                                 {% if property.has_parking %}<li class="mb-2"><i class="fas fa-parking text-success me-2"></i> Parqueo</li>{% endif %}
                                 {% if property.has_pool %}<li class="mb-2"><i class="fas fa-swimmer text-success me-2"></i> Piscina</li>{% endif %}
-                                {% if property.has_billiard %}<li class="mb-2"><i class="fas fa-eight-ball text-success me-2"></i> Billar</li>{% endif %}
-                                {% if property.has_washing_machine %}<li class="mb-2"><i class="fas fa-tshirt text-success me-2"></i> Lavadora</li>{% endif %}
+                                {% if property.has_ac %}<li class="mb-2"><i class="fas fa-snowflake text-success me-2"></i> Aire acondicionado</li>{% endif %}
                             </ul>
                         </div>
                     </div>
@@ -79,6 +76,9 @@
                     <h3 class="h5 mb-3">
                         <i class="fas fa-star" style="color: #ffc107;"></i>
                         Valoraciones
+                        {% if total_reviews > 0 %}
+                            <span class="badge bg-secondary ms-2">{{ total_reviews }} reseñas</span>
+                        {% endif %}
                     </h3>
                     
                     {% if total_reviews > 0 %}
@@ -101,35 +101,183 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="reviews-list">
+                            {% for review in property.reviews.all|slice:":5" %}
+                            <div class="border-bottom pb-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <strong>{{ review.user.username }}</strong>
+                                    <small class="text-muted">{{ review.created_at|date:"d/m/Y" }}</small>
+                                </div>
+                                <div class="review-stars mb-2">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= review.rating %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-muted"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <p class="mb-0">{{ review.comment }}</p>
+                            </div>
+                            {% endfor %}
+                            
+                            {% if total_reviews > 5 %}
+                            <div class="text-center mt-3">
+                                <a href="#" class="btn btn-sm btn-outline-secondary">Ver todas las reseñas</a>
+                            </div>
+                            {% endif %}
+                        </div>
                     {% else %}
                         <p class="text-muted">Aún no hay valoraciones para esta propiedad.</p>
                     {% endif %}
                     
                     {% if user.is_authenticated %}
-                        {% if not user_reviewed %}
-                            <a href="{% url 'properties:add_review' property.pk %}" class="btn btn-outline-primary btn-sm">Escribir valoración</a>
+                        {% if user_reviewed %}
+                            <div class="alert alert-info mt-3 small"><i class="fas fa-check-circle"></i> Ya has valorado esta propiedad.</div>
+                        {% else %}
+                            <a href="{% url 'properties:add_review' property.pk %}" class="btn btn-outline-primary btn-sm mt-2">Escribir valoración</a>
                         {% endif %}
                     {% endif %}
                 </div>
             </div>
+
+            <!-- Calendario de disponibilidad -->
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <h3 class="h5 mb-4"><i class="fas fa-calendar-alt me-2" style="color: #00a699;"></i>Disponibilidad</h3>
+                    <div class="calendar-container">
+                        <div class="calendar-header d-flex justify-content-between align-items-center">
+                            <button class="month-nav-btn" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                            <h6 id="currentMonth" class="current-month"></h6>
+                            <button class="month-nav-btn" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <div class="row g-1 text-center mb-3">
+                            <div class="col"><span class="weekday-label">Lu</span></div>
+                            <div class="col"><span class="weekday-label">Ma</span></div>
+                            <div class="col"><span class="weekday-label">Mi</span></div>
+                            <div class="col"><span class="weekday-label">Ju</span></div>
+                            <div class="col"><span class="weekday-label">Vi</span></div>
+                            <div class="col"><span class="weekday-label">Sá</span></div>
+                            <div class="col"><span class="weekday-label">Do</span></div>
+                        </div>
+                        <div id="calendarGrid" class="row g-1"></div>
+                    </div>
+                    <div id="selectedDatesMessage" class="mt-3"></div>
+                </div>
+            </div>
         </div>
 
-        <!-- Columna derecha (Reserva/WhatsApp) -->
+        <!-- Columna derecha -->
         <div class="col-lg-4">
             <div class="card sticky-top" style="top: 100px;">
                 <div class="card-body">
-                    <h4 class="mb-3">
-                        ${{ property.price_per_night|default:property.price_per_daypass }}
-                        <small class="text-muted" style="font-size: 0.9rem;">/ {{ property.get_price_category_display }}</small>
-                    </h4>
+                    {% if property.price_category == 'night' and property.price_per_night %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5>Por noche</h5>
+                        <h4>${{ property.price_per_night }}</h4>
+                    </div>
+                    {% endif %}
+                    
+                    {% if property.price_category == 'month' and property.price_per_month %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5>Por mes</h5>
+                        <h4>${{ property.price_per_month }}</h4>
+                    </div>
+                    {% endif %}
+                    
+                    {% if property.price_category == 'daypass' and property.price_per_daypass %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5>Pasadía</h5>
+                        <h4>${{ property.price_per_daypass }}</h4>
+                    </div>
+                    {% endif %}
+                    
                     <hr>
-                    <a href="https://wa.me{{ BUSINESS_WHATSAPP }}" class="btn btn-primary w-100 py-2 mb-2">
-                        <i class="fab fa-whatsapp me-2"></i>Reservar ahora
+                    <a id="whatsappButton" href="#" class="btn btn-success btn-lg w-100 mb-3">
+                        <i class="fab fa-whatsapp me-2"></i>Reservar
                     </a>
-                    <p class="text-center small text-muted mb-0">No se te cobrará nada aún</p>
+                    <hr>
+                    <h6 class="mb-2">Detalles</h6>
+                    <ul class="list-unstyled small text-muted">
+                        <li class="mb-1"><i class="fas fa-bed me-2"></i> {{ property.bedrooms }} habitaciones</li>
+                        <li class="mb-1"><i class="fas fa-users me-2"></i> {{ property.guests }} huéspedes</li>
+                        <li class="mb-1"><i class="fas fa-tag me-2"></i> {{ property.category.name }}</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+/* Tus estilos CSS del calendario originales */
+.date-cell { cursor: pointer; transition: all 0.2s; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: 500; border-radius: 8px; }
+.available-date { background: #00a699; color: white; }
+.booked-date { background: #e0e0e0; color: #666; cursor: not-allowed; text-decoration: line-through; }
+.selected-date { background: #ff5a5f !important; color: white !important; }
+.weekday-label { font-weight: 600; color: #666; font-size: 0.85rem; }
+.month-nav-btn { border: none; background: white; border-radius: 50%; width: 35px; height: 35px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+</style>
+
+<script>
+let bookedDates = [];
+let currentDate = new Date();
+let currentMonth = currentDate.getMonth();
+let currentYear = currentDate.getFullYear();
+const propertyId = {{ property.id }};
+let selectedStartDate = null;
+let selectedEndDate = null;
+
+fetch(`/api/property/${propertyId}/booked-dates/`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) { bookedDates = data.booked_dates; }
+        renderCalendar(currentMonth, currentYear);
+    });
+
+function renderCalendar(month, year) {
+    const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    document.getElementById('currentMonth').textContent = `${monthNames[month]} ${year}`;
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    let startDay = firstDay === 0 ? 6 : firstDay - 1;
+    let calendarHTML = '';
+    let dayCount = 1;
+    for (let i = 0; i < 6; i++) {
+        calendarHTML += '<div class="row g-1">';
+        for (let j = 0; j < 7; j++) {
+            if (i === 0 && j < startDay) {
+                calendarHTML += '<div class="col"><div class="p-2"></div></div>';
+            } else if (dayCount <= daysInMonth) {
+                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(dayCount).padStart(2,'0')}`;
+                let isBooked = bookedDates.includes(dateStr);
+                let isSelected = (dateStr === selectedStartDate || dateStr === selectedEndDate);
+                let cellClass = isBooked ? 'bg-secondary booked-date' : (isSelected ? 'selected-date' : 'available-date');
+                calendarHTML += `<div class="col"><div class="date-cell ${cellClass}" onclick="selectDate('${dateStr}')">${dayCount}</div></div>`;
+                dayCount++;
+            } else {
+                calendarHTML += '<div class="col"><div class="p-2"></div></div>';
+            }
+        }
+        calendarHTML += '</div>';
+    }
+    document.getElementById('calendarGrid').innerHTML = calendarHTML;
+}
+
+window.selectDate = function(dateStr) {
+    if (bookedDates.includes(dateStr)) return;
+    if (!selectedStartDate || selectedEndDate) { selectedStartDate = dateStr; selectedEndDate = null; }
+    else { selectedEndDate = dateStr; }
+    renderCalendar(currentMonth, currentYear);
+};
+
+document.getElementById('whatsappButton').addEventListener('click', function(e) {
+    e.preventDefault();
+    let message = `Hola! Me interesa *{{ property.title|urlencode }}*. Fechas: ${selectedStartDate} al ${selectedEndDate}`;
+    window.open(`https://wa.me/{{ BUSINESS_WHATSAPP }}?text=${message}`, '_blank');
+});
+</script>
 {% endblock %}
