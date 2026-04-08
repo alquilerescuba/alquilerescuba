@@ -75,6 +75,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_MANIFEST_STRICT = False  # Evita que la app rompa si no encuentra un archivo
+
 
 # CLOUDFLARE R2 DATA
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
