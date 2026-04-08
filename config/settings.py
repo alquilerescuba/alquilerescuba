@@ -8,8 +8,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-tu-clave-secreta-aqui")
 DEBUG = config("DEBUG", default=False, cast=bool)
 
-# MEJORA: Evita errores de split si la variable no existe
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",")
+# settings.py - Replace your current ALLOWED_HOSTS line with this:
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in config("ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",")
+]
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
