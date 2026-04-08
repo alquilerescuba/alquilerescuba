@@ -72,7 +72,9 @@ else:
 # Static Files
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 # CLOUDFLARE R2 DATA
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
