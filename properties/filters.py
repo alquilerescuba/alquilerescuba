@@ -23,7 +23,7 @@ class PropertyFilter(django_filters.FilterSet):
         widget=forms.DateInput(attrs={"type": "date"}),
     )
 
-    # 3. Tipo de propiedad
+    # 3. Tipo de propiedad (Casa/Apartamento)
     category = django_filters.ModelChoiceFilter(
         queryset=Category.objects.all(), label="Tipo de propiedad", empty_label="Todos"
     )
@@ -33,21 +33,21 @@ class PropertyFilter(django_filters.FilterSet):
         choices=Property.RENTAL_TYPES, label="Tipo de alquiler"
     )
 
-    # 5. Habitaciones
+    # 5. Habitaciones (exactas)
     bedrooms = django_filters.NumberFilter(
         field_name="bedrooms",
         lookup_expr="exact",
         label="Habitaciones",
     )
 
-    # 6. Categoría de precio
+    # 6. Categoría de precio (incluye noche, mes, pasadía)
     price_category = django_filters.ChoiceFilter(
         choices=Property.PRICE_CATEGORIES,
         label="Categoría de precio",
         empty_label="Todos",
     )
 
-    # Precio (filtro dinámico)
+    # Precio (filtro dinámico según categoría)
     price_min = django_filters.NumberFilter(
         method="filter_price", label="Precio mínimo (USD)"
     )
@@ -56,7 +56,7 @@ class PropertyFilter(django_filters.FilterSet):
         method="filter_price", label="Precio máximo (USD)"
     )
 
-    # 7. Huéspedes
+    # 7. Huéspedes (mínimo)
     guests = django_filters.NumberFilter(
         field_name="guests", lookup_expr="gte", label="Huéspedes (mínimo)"
     )
@@ -76,6 +76,7 @@ class PropertyFilter(django_filters.FilterSet):
         check_out = self.data.get("check_out")
 
         if check_in and check_out:
+            # Excluir propiedades con reservas que se solapan
             booked_properties = (
                 Booking.objects.filter(
                     Q(start_date__lte=check_out) & Q(end_date__gte=check_in)
@@ -87,13 +88,14 @@ class PropertyFilter(django_filters.FilterSet):
         return queryset
 
     def filter_price(self, queryset, name, value):
-        """Filtra según la categoría de precio seleccionada (Corregido para evitar Error 500)"""
+        """Filtra según la categoría de precio seleccionada"""
         price_category = self.data.get("price_category")
 
+        # Manejo seguro de valores nulos o vacíos
         if not price_category or value is None:
             return queryset
 
-        # Mapeo seguro de campos para evitar UnboundLocalError
+        # Mapeo de campos según categoría (incluye pasadía)
         if price_category == "night":
             field = "price_per_night"
         elif price_category == "month":
@@ -103,6 +105,7 @@ class PropertyFilter(django_filters.FilterSet):
         else:
             return queryset
 
+        # Construir lookup dinámico (gte para min, lte para max)
         lookup = "gte" if name == "price_min" else "lte"
         return queryset.filter(**{f"{field}__{lookup}": value})
 
