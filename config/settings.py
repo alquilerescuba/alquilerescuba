@@ -11,7 +11,10 @@ DEBUG = config("DEBUG", default=False, cast=bool)
 # Limpieza de espacios en dominios
 ALLOWED_HOSTS = [
     host.strip()
-    for host in config("ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",")
+    for host in config(
+        "ALLOWED_HOSTS",
+        default="localhost,127.0.0.1",
+    ).split(",")
 ]
 
 INSTALLED_APPS = [
