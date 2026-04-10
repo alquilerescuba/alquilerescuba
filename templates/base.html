@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}DEA4EVER - Alquileres en Cuba{% endblock %}</title>
     
-    <!-- Favicons (corregido con static de Gemini) -->
+    <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
     <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
     
@@ -19,30 +19,29 @@
     
     <style>
         :root {
-            --primary-color: #00a699;
-            --primary-dark: #008b82;
-            --primary-light: #4ecdc4;
-            --secondary-color: #ff9f4a;
-            --accent-sun: #ffb347;
-            --text-dark: #1e2a32;
-            --text-light: #6c7a8a;
-            --bg-light: #ffffff;
-            --bg-gray: #fafaf9;
-            --border-color: #eef2f2;
+            --primary-color: #0B4078;
+            --primary-dark: #092e55;
+            --primary-light: #508BB9;
+            --secondary-color: #F6D5A1;
+            --text-dark: #222222;
+            --text-light: #6B7280;
+            --bg-body: #F8F8F8;        /* ← Fondo principal para el body */
+            --bg-white: #FFFFFF;        /* ← Blanco para tarjetas, navbar, footer */
+            --border-color: #e5e7eb;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg-gray);
+            background-color: var(--bg-body); /* ← Color #F8F8F8 */
             color: var(--text-dark);
             line-height: 1.5;
         }
         
-        /* Navbar profesional */
+        /* Navbar */
         .navbar {
-            background-color: var(--bg-light) !important;
+            background-color: var(--bg-white) !important;
             border-bottom: 1px solid var(--border-color);
             padding: 1rem 0;
             position: sticky;
@@ -81,7 +80,7 @@
         
         /* Hero Section */
         .hero-section {
-            background: linear-gradient(135deg, #1e4b5e 0%, #2c7a6e 50%, #00a699 100%);
+            background: linear-gradient(135deg, #0B4078 0%, #508BB9 50%, #F6D5A1 100%);
             color: white;
             padding: 2rem 0;
             margin-bottom: 2rem;
@@ -98,7 +97,7 @@
             overflow: hidden;
             transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            background: var(--bg-light);
+            background: var(--bg-white); /* ← Blanco */
         }
         
         .card:hover {
@@ -114,7 +113,7 @@
         .filters-card {
             border-radius: 18px;
             border: 1px solid var(--border-color);
-            background: var(--bg-light);
+            background: var(--bg-white); /* ← Blanco */
             position: sticky;
             top: 90px;
             transition: box-shadow 0.2s;
@@ -137,7 +136,7 @@
         
         /* Footer */
         footer {
-            background-color: var(--bg-light);
+            background-color: var(--bg-white); /* ← Blanco */
             border-top: 1px solid var(--border-color);
             padding: 3rem 0 2rem;
             margin-top: 4rem;
@@ -216,7 +215,7 @@
                     </li>
                 </ul>
 
-                <!-- Bloque de Autenticación (tu versión anterior) -->
+                <!-- Bloque de Autenticación -->
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
@@ -257,7 +256,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer (versión anterior con más enlaces) -->
+    <!-- Footer -->
     <footer>
         <div class="container">
             <div class="row">

@@ -7,7 +7,7 @@
 .star-rating .fas.fa-star,
 .star-rating .far.fa-star {
     font-size: 1.1rem;
-    color: #ffc107;
+    color: #F6D5A1;
 }
 
 .star-rating .far.fa-star {
@@ -22,7 +22,7 @@
 
 .review-stars .fas.fa-star {
     font-size: 0.9rem;
-    color: #ffc107;
+    color: #F6D5A1;
 }
 
 .review-stars .far.fa-star {
@@ -39,14 +39,9 @@
 .big-star-rating .fas.fa-star,
 .big-star-rating .far.fa-star {
     font-size: 1.3rem;
-    color: #ffc107;
+    color: #F6D5A1;
 }
 
 .big-star-rating .far.fa-star {
     color: #e4e5e9;
-}
-
-.star-rating {
-    display: inline-flex;
-    gap: 2px;
 }
