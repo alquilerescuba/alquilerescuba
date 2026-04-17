@@ -147,7 +147,7 @@
         <!-- Listado de propiedades -->
         <div class="col-md-9">
             <div class="row">
-                {% for property in filter.qs %}
+                {% for property in page_obj %}
                 <div class="col-md-4 mb-4">
                     <a href="{% url 'properties:detail' property.pk %}" class="text-decoration-none">
                         <div class="card h-100">
@@ -177,6 +177,36 @@
                                                         <i class="far fa-star" style="color: #ffc107; font-size: 0.8rem;"></i>
                                                     {% endif %}
                                                 {% endfor %}
+                                                <!-- Paginación -->
+{% if is_paginated %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                &laquo; Anterior
+            </a>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                Siguiente &raquo;
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
                                             </div>
                                             <span class="small fw-bold">{{ property.average_rating|floatformat:1 }}</span>
                                             <span class="small text-muted ms-1">({{ property.reviews_count }})</span>
