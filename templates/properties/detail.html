@@ -37,7 +37,7 @@
         <div class="col-12">
             <!-- EN ESCRITORIO: Título y ubicación van aquí (sobre la galería) -->
             <div class="d-none d-md-block mb-3">
-                <h1 class="display-6 fw-semibold" style="color: #222222;">{{ property.title }}</h1>
+                <h1 class="fw-bold" style="color: #222222; font-size: 1.8rem;">{{ property.title }}</h1>
                 <p class="text-muted" style="color: #6B7280 !important;">
                     <i class="fas fa-map-marker-alt me-1"></i> {{ property.get_location_display }}
                 </p>
@@ -62,7 +62,6 @@
                                 <img src="{{ image.image.url }}" class="img-fluid rounded-end" alt="{{ image.caption }}" style="width: 100%; height: 198px; object-fit: cover;">
                             </div>
                             {% empty %}
-                            <!-- Si no hay fotos en la galería, mostramos placeholders -->
                             <div class="col-6 mb-1">
                                 <img src="{% static 'images/logo-nuevo.png' %}" class="img-fluid rounded-end" style="width: 100%; height: 198px; object-fit: contain; background: #F8F8F8; padding: 20px;">
                             </div>
@@ -83,37 +82,24 @@
 
             <!-- EN MÓVIL: Título y ubicación van aquí (debajo de la galería) -->
             <div class="d-block d-md-none mb-4 px-3 text-center">
-                <h1 class="display-6 fw-semibold" style="color: #222222;">{{ property.title }}</h1>
+                <h1 class="fw-bold" style="color: #222222; font-size: 1.5rem;">{{ property.title }}</h1>
                 <p class="text-muted" style="color: #6B7280 !important;">
                     <i class="fas fa-map-marker-alt me-1"></i> {{ property.get_location_display }}
                 </p>
             </div>
 
-            <!-- CONTENIDO PRINCIPAL (El resto de la página no cambia) -->
+            <!-- CONTENIDO PRINCIPAL -->
             <div class="row">
                 <!-- Columna izquierda (Contenido principal) -->
                 <div class="col-lg-8">
-                    <!-- 3. CARACTERÍSTICAS PRINCIPALES (En móvil, se muestran centradas y con menos protagonismo) -->
+                    <!-- 3. CARACTERÍSTICAS PRINCIPALES (Con separador · y sin iconos) -->
                     <div class="border-0 border-md-bottom pb-4 mb-4">
-                        <div class="row text-center">
-                            <div class="col-4 mb-3">
-                                <div class="d-flex flex-column align-items-center">
-                                    <i class="fas fa-users fa-2x mb-2" style="color: #6B7280;"></i>
-                                    <span class="fw-semibold" style="color: #6B7280;">{{ property.guests }} huéspedes</span>
-                                </div>
-                            </div>
-                            <div class="col-4 mb-3">
-                                <div class="d-flex flex-column align-items-center">
-                                    <i class="fas fa-bed fa-2x mb-2" style="color: #6B7280;"></i>
-                                    <span class="fw-semibold" style="color: #6B7280;">{{ property.bedrooms }} habitaciones</span>
-                                </div>
-                            </div>
-                            <div class="col-4 mb-3">
-                                <div class="d-flex flex-column align-items-center">
-                                    <i class="fas fa-bath fa-2x mb-2" style="color: #6B7280;"></i>
-                                    <span class="fw-semibold" style="color: #6B7280;">{{ property.bathrooms }} baños</span>
-                                </div>
-                            </div>
+                        <div class="text-center text-md-start">
+                            <span class="fw-semibold" style="color: #6B7280;">{{ property.guests }} huéspedes</span>
+                            <span class="mx-2" style="color: #6B7280;">·</span>
+                            <span class="fw-semibold" style="color: #6B7280;">{{ property.bedrooms }} habitaciones</span>
+                            <span class="mx-2" style="color: #6B7280;">·</span>
+                            <span class="fw-semibold" style="color: #6B7280;">{{ property.bathrooms }} baños</span>
                         </div>
                     </div>
 
@@ -641,4 +627,4 @@ document.getElementById('whatsappButton').addEventListener('click', function(e) 
 </script>
 {% endblock %}
 
-{% endblock %} 
+{% endblock %}

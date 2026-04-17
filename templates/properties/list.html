@@ -7,7 +7,7 @@
 <!-- Hero Section -->
 <div class="hero-section">
     <div class="container text-center">
-        <h1 class="hero-title">Encuentra tu lugar en Cuba</h1>
+        <h1 class="hero-title">ENCUENTRA TU LUGAR EN CUBA</h1>
         <p class="hero-subtitle">Casas, apartamentos y experiencias únicas en las mejores playas y ciudades</p>
     </div>
 </div>
@@ -155,7 +155,7 @@
                             {% if property.main_photo %}
                                 <img src="{{ property.main_photo.url }}" class="card-img-top" alt="{{ property.title }}" loading="lazy">
                             {% else %}
-                                <img src="{% static 'images/logo-nuevo.png' %}" class="card-img-top" style="object-fit: contain; padding: 20px;" alt="Logo">
+                                <img src="{% static 'images/logo-nuevo.svg' %}" class="card-img-top" style="object-fit: contain; padding: 20px;" alt="Logo">
                             {% endif %}
                             <div class="card-body">
                                 <h5 class="card-title text-dark">{{ property.title }}</h5>
