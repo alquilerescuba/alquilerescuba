@@ -13,10 +13,16 @@
 </div>
 
 <div class="container">
+<!-- Botón Filtros para móvil -->
+<div class="d-md-none mb-3">
+    <button class="btn btn-outline-primary w-100" type="button" id="toggleFiltersBtn">
+        <i class="fas fa-sliders-h me-2"></i> Mostrar filtros
+    </button>
+</div>
     <div class="row">
         <!-- Sidebar con filtros -->
         <div class="col-md-3 mb-4">
-            <div class="filters-card p-3">
+            <div class="filters-card p-3" id="filtersSidebar">
                 <form method="get">
                     <!-- 1. Ubicación -->
                     <div class="mb-3">
@@ -265,6 +271,21 @@ if (priceCategorySelect) {
             priceLabel.textContent = 'Precio por pasadía (USD)';
         } else {
             priceLabel.textContent = 'Precio (USD)';
+        }
+    });
+}
+
+// Toggle filtros en móvil
+const toggleBtn = document.getElementById('toggleFiltersBtn');
+const filtersSidebar = document.getElementById('filtersSidebar');
+
+if (toggleBtn && filtersSidebar) {
+    toggleBtn.addEventListener('click', function() {
+        filtersSidebar.classList.toggle('show');
+        if (filtersSidebar.classList.contains('show')) {
+            toggleBtn.innerHTML = '<i class="fas fa-times me-2"></i> Ocultar filtros';
+        } else {
+            toggleBtn.innerHTML = '<i class="fas fa-sliders-h me-2"></i> Mostrar filtros';
         }
     });
 }

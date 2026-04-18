@@ -199,6 +199,17 @@
         }
         
         a, button { transition: all 0.2s ease; }
+
+        /* Filtros ocultos en móvil */
+@media (max-width: 767.98px) {
+    #filtersSidebar {
+        display: none;
+        margin-bottom: 1rem;
+    }
+    #filtersSidebar.show {
+        display: block;
+    }
+}
     </style>
     {% block extra_css %}{% endblock %}
 </head>
