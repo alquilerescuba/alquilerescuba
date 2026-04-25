@@ -159,7 +159,12 @@ class Review(models.Model):
     rating = models.PositiveSmallIntegerField(
         choices=[(i, f"{i}★") for i in range(1, 6)], validators=[MinValueValidator(1)]
     )
-    comment = models.TextField(max_length=500)
+    comment = models.TextField(
+        max_length=500,
+        blank=True,  # ← Permite vacío en formularios
+        null=True,  # ← Permite NULL en la base de datos
+        verbose_name="Comentario",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
