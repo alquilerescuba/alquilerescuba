@@ -40,11 +40,11 @@ class PropertyFilter(django_filters.FilterSet):
         label="Habitaciones",
     )
 
-    # 6. Categoría de precio (incluye noche, mes, pasadía)
     price_category = django_filters.ChoiceFilter(
         choices=Property.PRICE_CATEGORIES,
         label="Categoría de precio",
         empty_label="Todos",
+        method="filter_by_price_category",
     )
 
     # Precio (filtro dinámico según categoría)
@@ -88,26 +88,40 @@ class PropertyFilter(django_filters.FilterSet):
         return queryset
 
     def filter_price(self, queryset, name, value):
-        """Filtra según la categoría de precio seleccionada"""
+        """Filtra según la categoría de precio seleccionada (solo propiedades que tengan ese tipo de precio)"""
         price_category = self.data.get("price_category")
 
-        # Manejo seguro de valores nulos o vacíos
         if not price_category or value is None:
             return queryset
 
-        # Mapeo de campos según categoría (incluye pasadía)
+        # Primero, filtrar por existencia del campo correspondiente
         if price_category == "night":
+            queryset = queryset.filter(price_per_night__isnull=False)
             field = "price_per_night"
         elif price_category == "month":
+            queryset = queryset.filter(price_per_month__isnull=False)
             field = "price_per_month"
         elif price_category == "daypass":
+            queryset = queryset.filter(price_per_daypass__isnull=False)
             field = "price_per_daypass"
         else:
             return queryset
 
-        # Construir lookup dinámico (gte para min, lte para max)
+        # Luego aplicar el rango de precio
         lookup = "gte" if name == "price_min" else "lte"
         return queryset.filter(**{f"{field}__{lookup}": value})
+
+    def filter_by_price_category(self, queryset, name, value):
+        """Filtra propiedades que tengan precio en la categoría seleccionada"""
+        if not value:
+            return queryset
+        if value == "night":
+            return queryset.filter(price_per_night__isnull=False)
+        if value == "month":
+            return queryset.filter(price_per_month__isnull=False)
+        if value == "daypass":
+            return queryset.filter(price_per_daypass__isnull=False)
+        return queryset
 
     class Meta:
         model = Property
