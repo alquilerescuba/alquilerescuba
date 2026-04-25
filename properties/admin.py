@@ -1,4 +1,3 @@
-# properties/admin.py
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import Category, Property, PropertyImage, Booking, Review
@@ -28,13 +27,91 @@ class PropertyAdmin(admin.ModelAdmin):
     list_display = (
         "title",
         "location",
-        "price_category",
-        "get_precio_display",
+        "precios_display",
         "is_active",
         "thumbnail",
     )
-    list_filter = ("location", "category", "rental_type", "price_category", "is_active")
+    list_filter = ("location", "category", "rental_type", "is_active")
+    search_fields = ("title", "description", "address")
     inlines = [PropertyImageInline]
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "title",
+                    "description",
+                    "category",
+                    "location",
+                    "address",
+                )
+            },
+        ),
+        (
+            "Detalles",
+            {
+                "fields": (
+                    "bedrooms",
+                    "guests",
+                    "bathrooms",
+                    "rental_type",
+                )
+            },
+        ),
+        (
+            "Precios",
+            {
+                "fields": (
+                    "price_per_night",
+                    "price_per_month",
+                    "price_per_daypass",
+                ),
+                "description": "💡 Puedes llenar uno, dos o los tres precios. Si un campo queda vacío, no se mostrará.",
+            },
+        ),
+        (
+            "Amenidades",
+            {
+                "fields": (
+                    "has_wifi",
+                    "has_tv",
+                    "has_kitchen",
+                    "has_parking",
+                    "has_pool",
+                    "has_ac",
+                    "has_billiard",
+                    "has_washing_machine",
+                    "has_charcoal_oven",
+                )
+            },
+        ),
+        (
+            "Imagen",
+            {
+                "fields": ("main_photo",),
+            },
+        ),
+        (
+            "Estado",
+            {
+                "fields": ("is_active",),
+            },
+        ),
+    )
+
+    def precios_display(self, obj):
+        precios = []
+        if obj.price_per_night:
+            precios.append(f"${obj.price_per_night}/noche")
+        if obj.price_per_month:
+            precios.append(f"${obj.price_per_month}/mes")
+        if obj.price_per_daypass:
+            precios.append(f"${obj.price_per_daypass}/pasadía")
+        if not precios:
+            return "Sin precio"
+        return " · ".join(precios)
+
+    precios_display.short_description = "Precios"
 
     def thumbnail(self, obj):
         if obj.main_photo:
@@ -44,14 +121,7 @@ class PropertyAdmin(admin.ModelAdmin):
             )
         return "No foto"
 
-    def get_precio_display(self, obj):
-        if obj.price_category == "night":
-            return f"${obj.price_per_night} /noche"
-        if obj.price_category == "month":
-            return f"${obj.price_per_month} /mes"
-        return f"${obj.price_per_daypass} (Pasadía)"
-
-    get_precio_display.short_description = "Precio"
+    thumbnail.short_description = "Foto"
 
 
 admin.site.register(Booking)

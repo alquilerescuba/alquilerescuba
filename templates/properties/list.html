@@ -198,16 +198,19 @@
                                 </p>
                                 
                                 <p class="card-text">
-                                    {% if property.price_category == 'night' and property.price_per_night %}
-                                        <strong class="h6 text-dark">${{ property.price_per_night }}</strong> <small class="text-muted">/noche</small>
-                                    {% elif property.price_category == 'month' and property.price_per_month %}
-                                        <strong class="h6 text-dark">${{ property.price_per_month }}</strong> <small class="text-muted">/mes</small>
-                                    {% elif property.price_category == 'daypass' and property.price_per_daypass %}
-                                        <strong class="h6 text-dark">${{ property.price_per_daypass }}</strong> <small class="text-muted">/pasadía</small>
-                                    {% else %}
-                                        <small class="text-muted">Consultar precio</small>
-                                    {% endif %}
-                                </p>
+    {% if property.price_per_night %}
+        <strong class="h6 text-dark">${{ property.price_per_night }}</strong> <small class="text-muted">/noche</small><br>
+    {% endif %}
+    {% if property.price_per_month %}
+        <strong class="h6 text-dark">${{ property.price_per_month }}</strong> <small class="text-muted">/mes</small><br>
+    {% endif %}
+    {% if property.price_per_daypass %}
+        <strong class="h6 text-dark">${{ property.price_per_daypass }}</strong> <small class="text-muted">/pasadía</small>
+    {% endif %}
+    {% if not property.price_per_night and not property.price_per_month and not property.price_per_daypass %}
+        <small class="text-muted">Consultar precio</small>
+    {% endif %}
+</p>
                             </div>
                         </div>
                     </a>
