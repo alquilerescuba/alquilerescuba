@@ -25,15 +25,23 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Property)
 class PropertyAdmin(admin.ModelAdmin):
     list_display = (
+        "id",  # 👈 AÑADIDO: muestra el ID de la propiedad
         "title",
         "location",
         "precios_display",
         "is_active",
         "thumbnail",
     )
+    list_display_links = ("id", "title")  # 👈 AÑADIDO: el ID también es un enlace
     list_filter = ("location", "category", "rental_type", "is_active")
-    search_fields = ("title", "description", "address")
+    search_fields = (
+        "id",
+        "title",
+        "description",
+        "address",
+    )  # 👈 MODIFICADO: añadido 'id'
     inlines = [PropertyImageInline]
+
     fieldsets = (
         (
             None,
