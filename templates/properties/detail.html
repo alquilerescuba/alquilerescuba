@@ -56,27 +56,34 @@
                     </div>
                     <!-- Cuadrícula de Galería (Máximo 4 fotos) -->
                     <div class="col-md-4">
-                        <div class="row g-1">
-                            {% for image in property.images.all|slice:":4" %}
-                            <div class="col-6 mb-1">
-                                <img src="{{ image.image.url }}" class="img-fluid rounded-end" alt="{{ image.caption }}" style="width: 100%; height: 198px; object-fit: cover;">
-                            </div>
-                            {% empty %}
-                            <div class="col-6 mb-1">
-                                <img src="{% static 'images/logo-nuevo.png' %}" class="img-fluid rounded-end" style="width: 100%; height: 198px; object-fit: contain; background: #F8F8F8; padding: 20px;">
-                            </div>
-                            <div class="col-6 mb-1">
-                                <img src="{% static 'images/logo-nuevo.png' %}" class="img-fluid rounded-end" style="width: 100%; height: 198px; object-fit: contain; background: #F8F8F8; padding: 20px;">
-                            </div>
-                            <div class="col-6 mb-1">
-                                <img src="{% static 'images/logo-nuevo.png' %}" class="img-fluid rounded-end" style="width: 100%; height: 198px; object-fit: contain; background: #F8F8F8; padding: 20px;">
-                            </div>
-                            <div class="col-6 mb-1">
-                                <img src="{% static 'images/logo-nuevo.png' %}" class="img-fluid rounded-end" style="width: 100%; height: 198px; object-fit: contain; background: #F8F8F8; padding: 20px;">
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
+    <div class="row g-1">
+        {% for image in property.images.all|slice:":3" %}
+        <div class="col-6 mb-1">
+            <img src="{{ image.image.url }}" class="img-fluid rounded-end" alt="{{ image.caption }}" style="width: 100%; height: 198px; object-fit: cover;">
+        </div>
+        {% endfor %}
+        <!-- Cuarta miniatura con botón "Ver todas" -->
+        <div class="col-6 mb-1 position-relative">
+            {% with property.images.all|slice:"3:4"|first as fourth_image %}
+                {% if fourth_image %}
+                    <img src="{{ fourth_image.image.url }}" class="img-fluid rounded-end" alt="{{ fourth_image.caption }}" style="width: 100%; height: 198px; object-fit: cover;">
+                {% else %}
+                    <img src="{% static 'images/logo-nuevo.png' %}" class="img-fluid rounded-end" style="width: 100%; height: 198px; object-fit: contain; background: #F8F8F8; padding: 20px;">
+                {% endif %}
+            {% endwith %}
+            <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 rounded-end d-flex align-items-center justify-content-center" style="cursor: pointer;">
+                <span class="text-white fw-bold"><i class="fas fa-images me-2"></i> Ver todas</span>
+            </div>
+        </div>
+        <!-- Si no hay suficientes fotos, rellenar con placeholders -->
+        {% if property.images.all|length < 3 %}
+        <div class="col-6 mb-1">
+            <img src="{% static 'images/logo-nuevo.png' %}" class="img-fluid rounded-end" style="width: 100%; height: 198px; object-fit: contain; background: #F8F8F8; padding: 20px;">
+        </div>
+        {% endif %}
+    </div>
+</div>
+
                 </div>
             </div>
 
@@ -323,7 +330,15 @@
         </div>
     </div>
 </div>
-
+<!-- Modal de galería -->
+<div id="galleryModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); z-index: 9999;">
+    <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+        <span id="closeModal" style="position: absolute; top: 20px; right: 40px; color: white; font-size: 40px; cursor: pointer;">&times;</span>
+        <button id="prevImage" style="position: absolute; left: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 30px; padding: 10px 20px; cursor: pointer;">❮</button>
+        <img id="modalImage" src="" alt="" style="max-width: 90%; max-height: 80%; object-fit: contain;">
+        <button id="nextImage" style="position: absolute; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 30px; padding: 10px 20px; cursor: pointer;">❯</button>
+    </div>
+</div>
 {% block extra_js %}
 <style>
 /* Estilos para el calendario */
@@ -415,6 +430,9 @@
     font-weight: 600;
     color: #222222;
     margin: 0;
+}
+.gallery-desktop img {
+    cursor: pointer;
 }
 </style>
 
@@ -623,6 +641,94 @@ document.getElementById('whatsappButton').addEventListener('click', function(e) 
             'X-CSRFToken': '{{ csrf_token }}'
         },
         body: JSON.stringify({ property_id: propertyId })
+    });
+});
+
+// ============================================
+// Galería modal
+// ============================================
+let currentImageIndex = 0;
+let allImages = [];
+
+// Recopilar todas las URLs de las imágenes
+{% if property.main_photo %}
+allImages.push("{{ property.main_photo.url }}");
+{% endif %}
+{% for image in property.images.all %}
+allImages.push("{{ image.image.url }}");
+{% endfor %}
+// Si no hay imágenes, usar un placeholder
+if (allImages.length === 0) {
+    allImages.push("{% static 'images/logo-nuevo.png' %}");
+}
+
+// Obtener elementos del DOM
+const modal = document.getElementById('galleryModal');
+const modalImage = document.getElementById('modalImage');
+const closeModal = document.getElementById('closeModal');
+const prevImageBtn = document.getElementById('prevImage');
+const nextImageBtn = document.getElementById('nextImage');
+
+// Función para abrir el modal en una imagen específica
+function openGallery(index) {
+    currentImageIndex = index;
+    modalImage.src = allImages[currentImageIndex];
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+// Función para cerrar el modal
+function closeGallery() {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+// Función para siguiente imagen
+function nextImage() {
+    currentImageIndex = (currentImageIndex + 1) % allImages.length;
+    modalImage.src = allImages[currentImageIndex];
+}
+
+// Función para imagen anterior
+function prevImage() {
+    currentImageIndex = (currentImageIndex - 1 + allImages.length) % allImages.length;
+    modalImage.src = allImages[currentImageIndex];
+}
+
+// Asignar eventos
+closeModal.addEventListener('click', closeGallery);
+nextImageBtn.addEventListener('click', nextImage);
+prevImageBtn.addEventListener('click', prevImage);
+
+// Cerrar al hacer clic fuera de la imagen
+modal.addEventListener('click', function(e) {
+    if (e.target === modal) closeGallery();
+});
+
+// Navegación con teclado
+document.addEventListener('keydown', function(e) {
+    if (modal.style.display === 'flex') {
+        if (e.key === 'ArrowRight') nextImage();
+        else if (e.key === 'ArrowLeft') prevImage();
+        else if (e.key === 'Escape') closeGallery();
+    }
+});
+
+// Asignar evento al botón "Ver todas"
+const verTodasBtn = document.querySelector('.position-absolute .text-white');
+if (verTodasBtn) {
+    verTodasBtn.parentElement.addEventListener('click', function() {
+        openGallery(0);
+    });
+}
+// Asignar evento a todas las fotos del collage (foto grande + miniaturas)
+const allThumbnails = document.querySelectorAll('.gallery-desktop .col-md-8 img, .gallery-desktop .col-md-4 img');
+allThumbnails.forEach((img, index) => {
+    // Eliminar el índice del loop de Django, usamos uno propio
+    img.addEventListener('click', function() {
+        const clickedUrl = this.src;
+        const realIndex = allImages.findIndex(url => url === clickedUrl);
+        openGallery(realIndex >= 0 ? realIndex : 0);
     });
 });
 </script>
