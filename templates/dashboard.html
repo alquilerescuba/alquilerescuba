@@ -1,21 +1,243 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Dashboard - DEA4EVER{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
+<div class="container mt-4">
+    <h1 class="h3 mb-4"><i class="fas fa-chart-line"></i> Dashboard de rendimiento</h1>
+    
+    <!-- ============================================ -->
+    <!-- Tarjetas de resumen -->
+    <!-- ============================================ -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-building fa-2x text-primary mb-2"></i>
+                    <h2 class="display-4 text-primary">{{ total_properties }}</h2>
+                    <p class="text-muted mb-0">Propiedades activas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-users fa-2x text-success mb-2"></i>
+                    <h2 class="display-4 text-success">{{ total_leads }}</h2>
+                    <p class="text-muted mb-0">Total leads generados</p>
+                    <small class="text-muted">(clics en WhatsApp)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-percent fa-2x text-warning mb-2"></i>
+                    <h2 class="display-4 text-warning">{{ conversion_rate }}%</h2>
+                    <p class="text-muted mb-0">Tasa de conversión</p>
+                    <small class="text-muted">(pagados / total)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-calendar-day fa-2x text-info mb-2"></i>
+                    <h2 class="display-4 text-info">{{ leads_today }}</h2>
+                    <p class="text-muted mb-0">Leads hoy</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ============================================ -->
+    <!-- Propiedades por ubicación vs Leads por ubicación -->
+    <!-- ============================================ -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-map-marker-alt text-primary"></i> Propiedades por ubicación</h5>
+                </div>
+                <div class="card-body">
+                    {% if properties_by_location %}
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Ubicación</th>
+                                    <th class="text-end">Propiedades</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for loc in properties_by_location %}
+                                <tr>
+                                    <td>{{ loc.location_name }}</td>
+                                    <td class="text-end"><span class="badge bg-primary">{{ loc.total }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-muted text-center mb-0">No hay propiedades registradas.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-simple text-success"></i> Leads por ubicación</h5>
+                </div>
+                <div class="card-body">
+                    {% if leads_by_location %}
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Ubicación</th>
+                                    <th class="text-end">Leads</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for loc in leads_by_location %}
+                                <tr>
+                                    <td>{{ loc.location_name }}</td>
+                                    <td class="text-end"><span class="badge bg-success">{{ loc.total }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-muted text-center mb-0">No hay leads registrados aún.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ============================================ -->
+    <!-- Gráfico de evolución de leads -->
+    <!-- ============================================ -->
+    <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-line text-primary"></i> Evolución de leads (últimos 6 meses)</h5>
+                </div>
                 <div class="card-body">
-                    <h2 class="text-center mb-4">Dashboard</h2>
-                    <p class="text-center text-muted">Panel de control en construcción.</p>
-                    <div class="alert alert-info text-center">
-                        Próximamente: estadísticas, leads y más funcionalidades.
-                    </div>
+                    <canvas id="leadsChart" height="100"></canvas>
+                    {% if not months %}
+                        <p class="text-muted text-center mb-0">No hay datos de leads aún.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ============================================ -->
+    <!-- Top propiedades y leads recientes -->
+    <!-- ============================================ -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-trophy text-warning"></i> Propiedades con más leads</h5>
+                </div>
+                <div class="card-body">
+                    {% if top_properties %}
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Propiedad</th>
+                                    <th>Ubicación</th>
+                                    <th class="text-end">Leads</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for prop in top_properties %}
+                                <tr>
+                                    <td>{{ prop.property__title|truncatechars:35 }}</td>
+                                    <td>{{ prop.location_name }}</td>
+                                    <td class="text-end"><span class="badge bg-warning text-dark">{{ prop.total }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-muted text-center mb-0">No hay datos aún.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-clock text-info"></i> Últimos leads</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_leads %}
+                        <div class="list-group list-group-flush">
+                            {% for lead in recent_leads %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-home text-secondary"></i>
+                                        <strong>{{ lead.property.title|truncatechars:35 }}</strong>
+                                        <br>
+                                        <small class="text-muted"><i class="far fa-calendar-alt"></i> {{ lead.clicked_at|date:"d/m/Y H:i" }}</small>
+                                    </div>
+                                    <div>
+                                        {% if lead.commission_paid %}
+                                            <span class="badge bg-success"><i class="fas fa-check-circle"></i> Pagado</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary"><i class="fas fa-hourglass-half"></i> Pendiente</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center mb-0">No hay leads registrados aún.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const months = {{ months|safe }};
+    const leadsCounts = {{ leads_counts|safe }};
+    
+    if (months.length > 0) {
+        const ctx = document.getElementById('leadsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Leads generados',
+                    data: leadsCounts,
+                    borderColor: '#0B4078',
+                    backgroundColor: 'rgba(11, 64, 120, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'top' }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}
 {% endblock %}
