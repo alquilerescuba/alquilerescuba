@@ -57,7 +57,6 @@ class Property(models.Model):
         verbose_name="Tipo de alquiler",
     )
 
-    # Comodidades
     has_wifi = models.BooleanField(default=False, verbose_name="WiFi")
     has_tv = models.BooleanField(default=False, verbose_name="TV")
     has_kitchen = models.BooleanField(default=False, verbose_name="Cocina")
@@ -70,7 +69,6 @@ class Property(models.Model):
         default=False, verbose_name="Horno al carbón"
     )
 
-    # Precios con validación para no ser negativos
     price_category = models.CharField(
         max_length=10,
         choices=PRICE_CATEGORIES,
@@ -102,7 +100,6 @@ class Property(models.Model):
         verbose_name="Precio por pasadía (USD)",
     )
 
-    # Fotos en carpetas organizadas en R2
     main_photo = models.ImageField(
         upload_to="properties/main/", verbose_name="Foto principal"
     )
@@ -123,6 +120,12 @@ class Property(models.Model):
     def average_rating(self):
         avg = self.reviews.aggregate(Avg("rating"))["rating__avg"]
         return round(avg, 1) if avg else 0
+
+    # MÉTODO CORREGIDO PARA TU URLCONF
+    def get_absolute_url(self):
+        from django.urls import reverse
+
+        return reverse("properties:detail", kwargs={"pk": self.pk})
 
 
 class PropertyImage(models.Model):
@@ -161,8 +164,8 @@ class Review(models.Model):
     )
     comment = models.TextField(
         max_length=500,
-        blank=True,  # ← Permite vacío en formularios
-        null=True,  # ← Permite NULL en la base de datos
+        blank=True,
+        null=True,
         verbose_name="Comentario",
     )
     created_at = models.DateTimeField(auto_now_add=True)

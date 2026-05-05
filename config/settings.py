@@ -24,6 +24,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
+    "django.contrib.sitemaps",
     "whitenoise.runserver_nostatic",
     "storages",
     "core",
@@ -120,3 +122,4 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Configuración de negocio
 BUSINESS_WHATSAPP = "+5354026428"
+SITE_ID = 1
