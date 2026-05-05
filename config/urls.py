@@ -21,7 +21,7 @@ def robots_txt(request):
         "User-agent: *",
         "Disallow: /admin/",
         "Disallow: /dashboard/",
-        "Sitemap: http://dea4ever.net",
+        "Sitemap: https://www.dea4ever.net/sitemap.xml",
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
