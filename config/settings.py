@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-tu-clave-secreta-aqui")
 DEBUG = config("DEBUG", default=False, cast=bool)
 
-# Limpieza de espacios en dominios
+
 ALLOWED_HOSTS = [
     host.strip()
     for host in config(
