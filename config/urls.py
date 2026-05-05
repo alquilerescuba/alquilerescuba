@@ -3,15 +3,28 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
-from django.contrib.sitemaps.views import sitemap  # <--- IMPORTANTE
+from django.contrib.sitemaps.views import sitemap
+from django.http import HttpResponse  # <--- AÑADIDO
 from accounts import views as accounts_views
 from leads.views import DashboardView
-from properties.sitemaps import PropertySitemap  # <--- IMPORTANTE
+from properties.sitemaps import PropertySitemap
 
 # Configuración del diccionario de sitemaps
 sitemaps = {
     "properties": PropertySitemap,
 }
+
+
+# Función para generar el robots.txt dinámicamente
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Disallow: /admin/",
+        "Disallow: /dashboard/",
+        "Sitemap: https://dea4ever.net",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -21,7 +34,9 @@ urlpatterns = [
     path("signup/", accounts_views.signup, name="signup"),
     path("login/", accounts_views.login_view, name="login"),
     path("logout/", auth_views.LogoutView.as_view(next_page="/"), name="logout"),
-    # RUTA PARA GOOGLE
+    # RUTA PARA ROBOTS.TXT
+    path("robots.txt", robots_txt),
+    # RUTA PARA EL SITEMAP
     path(
         "sitemap.xml",
         sitemap,
