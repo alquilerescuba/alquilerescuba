@@ -1,5 +1,5 @@
 from django import forms
-from .models import Review
+from .models import Review, Property  # ← AÑADE 'Property' a la importación
 
 
 class ReviewForm(forms.ModelForm):
@@ -7,7 +7,7 @@ class ReviewForm(forms.ModelForm):
         model = Review
         fields = ["rating", "comment"]
         widgets = {
-            "rating": forms.HiddenInput(),  # Ocultamos el campo original
+            "rating": forms.HiddenInput(),
             "comment": forms.Textarea(
                 attrs={
                     "rows": 4,
@@ -17,4 +17,38 @@ class ReviewForm(forms.ModelForm):
         }
         labels = {
             "comment": "Tu comentario",
+        }
+
+
+# ============================================
+# NUEVO FORMULARIO PARA PROPIEDADES
+# ============================================
+class PropertyForm(forms.ModelForm):
+    class Meta:
+        model = Property
+        exclude = ["owner", "created_at", "updated_at", "average_rating"]
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 4, "class": "form-control"}),
+            "address": forms.Textarea(attrs={"rows": 2, "class": "form-control"}),
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "category": forms.Select(attrs={"class": "form-select"}),
+            "location": forms.Select(attrs={"class": "form-select"}),
+            "bedrooms": forms.NumberInput(attrs={"class": "form-control", "min": 1}),
+            "guests": forms.NumberInput(attrs={"class": "form-control", "min": 1}),
+            "bathrooms": forms.NumberInput(attrs={"class": "form-control", "min": 1}),
+            "rental_type": forms.Select(attrs={"class": "form-select"}),
+            "price_category": forms.Select(attrs={"class": "form-select"}),
+            "price_per_night": forms.NumberInput(
+                attrs={"class": "form-control", "step": "0.01"}
+            ),
+            "price_per_month": forms.NumberInput(
+                attrs={"class": "form-control", "step": "0.01"}
+            ),
+            "price_per_daypass": forms.NumberInput(
+                attrs={"class": "form-control", "step": "0.01"}
+            ),
+            "main_photo": forms.FileInput(attrs={"class": "form-control"}),
+        }
+        labels = {
+            "has_stable_electricity": "⚡ Corriente eléctrica estable (respaldo)",
         }

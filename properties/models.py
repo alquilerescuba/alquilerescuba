@@ -39,6 +39,14 @@ class Property(models.Model):
     ]
 
     title = models.CharField(max_length=200, verbose_name="Título")
+    owner = models.ForeignKey(
+        "auth.User",
+        on_delete=models.CASCADE,
+        related_name="properties",
+        verbose_name="Propietario",
+        null=True,  # Temporal, para que no falle con propiedades existentes
+        blank=True,
+    )
     description = models.TextField(verbose_name="Descripción")
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, null=True, verbose_name="Tipo de propiedad"

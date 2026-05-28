@@ -1,5 +1,5 @@
 from django.views.generic import ListView, DetailView
-from django_filters.views import FilterView  # ✅ ESTA LÍNEA ES LA QUE FALTA
+from django_filters.views import FilterView
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from properties.models import Property, Booking
@@ -104,10 +104,9 @@ from .forms import ReviewForm
 
 
 @login_required
-def add_review(request, pk):  # Cambia property_id por pk
+def add_review(request, pk):
     property = get_object_or_404(Property, id=pk)
 
-    # Verificar si el usuario ya valoró esta propiedad
     if Review.objects.filter(property=property, user=request.user).exists():
         messages.error(request, "Ya has valorado esta propiedad anteriormente.")
         return redirect("properties:detail", pk=pk)
@@ -127,3 +126,65 @@ def add_review(request, pk):  # Cambia property_id por pk
     return render(
         request, "properties/add_review.html", {"form": form, "property": property}
     )
+
+
+# ============================================
+# NUEVAS VISTAS PARA ANFITRIONES
+# ============================================
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .forms import PropertyForm
+from .models import Property
+
+
+@login_required
+def create_property(request):
+    """Publicar una nueva propiedad"""
+    if request.method == "POST":
+        form = PropertyForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_property = form.save(commit=False)
+            new_property.owner = request.user
+            new_property.save()
+            messages.success(request, "¡Propiedad publicada con éxito!")
+            return redirect("properties:detail", pk=new_property.pk)
+    else:
+        form = PropertyForm()
+    return render(request, "properties/create_property.html", {"form": form})
+
+
+@login_required
+def my_properties(request):
+    """Listar mis propiedades"""
+    properties = Property.objects.filter(owner=request.user).order_by("-created_at")
+    return render(request, "properties/my_properties.html", {"properties": properties})
+
+
+@login_required
+def update_property(request, pk):
+    """Editar una propiedad propia"""
+    property = get_object_or_404(Property, pk=pk, owner=request.user)
+    if request.method == "POST":
+        form = PropertyForm(request.POST, request.FILES, instance=property)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "¡Propiedad actualizada con éxito!")
+            return redirect("properties:detail", pk=property.pk)
+    else:
+        form = PropertyForm(instance=property)
+    return render(
+        request, "properties/update_property.html", {"form": form, "property": property}
+    )
+
+
+@login_required
+def delete_property(request, pk):
+    """Eliminar una propiedad propia"""
+    property = get_object_or_404(Property, pk=pk, owner=request.user)
+    if request.method == "POST":
+        property.delete()
+        messages.success(request, "Propiedad eliminada correctamente.")
+        return redirect("properties:my_properties")
+    return render(request, "properties/delete_property.html", {"property": property})
