@@ -24,7 +24,7 @@
         </h2>
     </div>
     {% for property in featured_properties %}
-    <div class="col-md-4 mb-4">
+    <div class="col-md-3 mb-4">
         <a href="{% url 'properties:detail' property.pk %}" class="text-decoration-none">
             <div class="card h-100">
                 {% if property.main_photo %}
@@ -91,7 +91,7 @@
         </h2>
     </div>
     {% for property in recent_properties %}
-    <div class="col-md-4 mb-4">
+    <div class="col-md-3 mb-4">
         <a href="{% url 'properties:detail' property.pk %}" class="text-decoration-none">
             <div class="card h-100">
                 {% if property.main_photo %}
