@@ -27,6 +27,12 @@ class PropertyListView(FilterView):
         )[
             :6
         ]  # Máximo 6 destacados
+        # Dentro de get_context_data, después de featured_properties
+        context["recent_properties"] = Property.objects.filter(is_active=True).order_by(
+            "-created_at"
+        )[
+            :6
+        ]  # Últimas 6 propiedades
         return context
 
 
