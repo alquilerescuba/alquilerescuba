@@ -21,6 +21,12 @@ class PropertyListView(FilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Los métodos average_rating y reviews_count ya están en el modelo
+        # Añadir propiedades destacadas
+        context["featured_properties"] = Property.objects.filter(
+            is_active=True, is_featured=True
+        )[
+            :6
+        ]  # Máximo 6 destacados
         return context
 
 

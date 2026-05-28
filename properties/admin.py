@@ -31,10 +31,18 @@ class PropertyAdmin(admin.ModelAdmin):
         "location",
         "precios_display",
         "is_active",
+        "is_featured",
         "thumbnail",
     )
     list_display_links = ("id", "title")  # 👈 AÑADIDO: el ID también es un enlace
-    list_filter = ("location", "category", "rental_type", "is_active", "owner")
+    list_filter = (
+        "location",
+        "category",
+        "rental_type",
+        "is_active",
+        "owner",
+        "is_featured",
+    )
     search_fields = (
         "id",
         "title",
@@ -105,7 +113,7 @@ class PropertyAdmin(admin.ModelAdmin):
         (
             "Estado",
             {
-                "fields": ("is_active",),
+                "fields": ("is_active", "is_featured"),
             },
         ),
     )

@@ -12,6 +12,73 @@
     </div>
 </div>
 
+<!-- Sección de propiedades destacadas -->
+{% if featured_properties %}
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="h3 mb-4">
+            <i class="fas fa-star text-warning me-2"></i> Alojamientos destacados
+        </h2>
+    </div>
+    {% for property in featured_properties %}
+    <div class="col-md-4 mb-4">
+        <a href="{% url 'properties:detail' property.pk %}" class="text-decoration-none">
+            <div class="card h-100">
+                {% if property.main_photo %}
+                    <img src="{{ property.main_photo.url }}" class="card-img-top" alt="{{ property.title }}" loading="lazy" style="height: 200px; object-fit: cover;">
+                {% else %}
+                    <img src="{% static 'images/logo-nuevo.png' %}" class="card-img-top" style="height: 200px; object-fit: contain; padding: 20px;">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title text-dark">{{ property.title }}</h5>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="fas fa-map-marker-alt"></i> {{ property.get_location_display }}
+                        </small>
+                    </p>
+                    <div class="mb-2">
+                        {% if property.reviews_count > 0 %}
+                            <div class="d-flex align-items-center">
+                                <div class="star-rating me-1">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= property.average_rating %}
+                                            <i class="fas fa-star" style="color: #ffc107; font-size: 0.8rem;"></i>
+                                        {% else %}
+                                            <i class="far fa-star" style="color: #ffc107; font-size: 0.8rem;"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="small fw-bold">{{ property.average_rating|floatformat:1 }}</span>
+                                <span class="small text-muted ms-1">({{ property.reviews_count }})</span>
+                            </div>
+                        {% else %}
+                            <span class="text-muted small">✨ Nuevo</span>
+                        {% endif %}
+                    </div>
+                    <p class="card-text">
+                        <span class="badge-amenity"><i class="fas fa-bed"></i> {{ property.bedrooms }}</span>
+                        <span class="badge-amenity"><i class="fas fa-users"></i> {{ property.guests }}</span>
+                    </p>
+                    <p class="card-text">
+                        {% if property.price_per_night %}
+                            <strong class="h6 text-dark">${{ property.price_per_night }}</strong> <small class="text-muted">/noche</small>
+                        {% elif property.price_per_month %}
+                            <strong class="h6 text-dark">${{ property.price_per_month }}</strong> <small class="text-muted">/mes</small>
+                        {% elif property.price_per_daypass %}
+                            <strong class="h6 text-dark">${{ property.price_per_daypass }}</strong> <small class="text-muted">/pasadía</small>
+                        {% else %}
+                            <small class="text-muted">Consultar precio</small>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+<hr class="my-4">
+{% endif %}
+
 <div class="container">
 <!-- Botón Filtros para móvil -->
 <div class="d-md-none mb-3">

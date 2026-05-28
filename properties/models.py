@@ -116,6 +116,11 @@ class Property(models.Model):
     )
 
     is_active = models.BooleanField(default=True, verbose_name="Activa")
+    is_featured = models.BooleanField(
+        default=False,
+        verbose_name="Destacado",
+        help_text="Mostrar esta propiedad en la sección de destacados de la página principal",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
