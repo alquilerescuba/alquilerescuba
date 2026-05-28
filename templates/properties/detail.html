@@ -377,6 +377,47 @@
         <button id="nextImage" style="position: absolute; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 30px; padding: 10px 20px; cursor: pointer;">❯</button>
     </div>
 </div>
+<!-- ============================================ -->
+<!-- SECCIÓN: TE PUEDEN GUSTAR -->
+<!-- ============================================ -->
+{% if similar_properties %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h3 class="h4 mb-4">
+                <i class="fas fa-heart text-danger me-2"></i> Te pueden gustar
+            </h3>
+        </div>
+        {% for property in similar_properties %}
+        <div class="col-md-3 mb-4">
+            <a href="{% url 'properties:detail' property.pk %}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm">
+                    {% if property.main_photo %}
+                        <img src="{{ property.main_photo.url }}" class="card-img-top" alt="{{ property.title }}" style="height: 150px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'images/logo-nuevo.png' %}" class="card-img-top" style="height: 150px; object-fit: contain; padding: 20px;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h6 class="card-title text-dark">{{ property.title|truncatechars:40 }}</h6>
+                        <p class="card-text small text-muted">
+                            <i class="fas fa-map-marker-alt"></i> {{ property.get_location_display }}
+                        </p>
+                        <p class="card-text">
+                            {% if property.price_per_night %}
+                                <strong class="text-dark">${{ property.price_per_night }}</strong> <small class="text-muted">/noche</small>
+                            {% elif property.price_per_month %}
+                                <strong class="text-dark">${{ property.price_per_month }}</strong> <small class="text-muted">/mes</small>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 {% block extra_js %}
 <style>
 /* Estilos para el calendario */
