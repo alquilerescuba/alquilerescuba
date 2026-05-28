@@ -303,6 +303,38 @@
                                class="btn btn-success btn-lg w-100 mb-3" style="background-color: #F6D5A1; border-color: #F6D5A1; color: #222222;">
                                 <i class="fab fa-whatsapp me-2"></i> Reservar
                             </a>
+
+                            <!-- Botones de compartir en redes sociales -->
+<div class="row g-2 mt-2">
+    <div class="col-6">
+        <a href="https://wa.me/?text=¡Mira esta increíble propiedad en {{ property.title }}!%0A%0A{{ request.build_absolute_uri|urlencode }}" 
+           target="_blank" 
+           class="btn btn-outline-success w-100" style="border-radius: 40px;">
+            <i class="fab fa-whatsapp me-1"></i> WhatsApp
+        </a>
+    </div>
+    <div class="col-6">
+        <a href="https://t.me/share/url?url={{ request.build_absolute_uri|urlencode }}&text=¡Mira esta propiedad en {{ property.title }}!" 
+           target="_blank" 
+           class="btn btn-outline-info w-100" style="border-radius: 40px;">
+            <i class="fab fa-telegram me-1"></i> Telegram
+        </a>
+    </div>
+    <div class="col-6">
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}" 
+           target="_blank" 
+           class="btn btn-outline-primary w-100" style="border-radius: 40px;">
+            <i class="fab fa-facebook-f me-1"></i> Facebook
+        </a>
+    </div>
+    <div class="col-6">
+        <a href="https://twitter.com/intent/tweet?text=¡Mira esta propiedad en {{ property.title }}!&url={{ request.build_absolute_uri|urlencode }}" 
+           target="_blank" 
+           class="btn btn-outline-secondary w-100" style="border-radius: 40px;">
+            <i class="fab fa-twitter me-1"></i> Twitter
+        </a>
+    </div>
+</div>
                             
                             <p class="small text-muted text-center mb-0">
                                 <i class="fas fa-shield-alt"></i> El dueño sabrá que nos visitaste
