@@ -48,7 +48,7 @@ class PropertyDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context["similar_properties"] = Property.objects.filter(
             location=self.object.location, is_active=True
-        ).exclude(id=self.object.id)[:3]
+        ).exclude(id=self.object.id)[:4]
 
         from django.conf import settings
 
