@@ -62,6 +62,9 @@ class PropertyFilter(django_filters.FilterSet):
     )
 
     # 8. Amenidades
+    has_stable_electricity = django_filters.BooleanFilter(
+        label="⚡ Corriente estable (respaldo)"
+    )
     has_wifi = django_filters.BooleanFilter(label="WiFi")
     has_pool = django_filters.BooleanFilter(label="Piscina")
     has_parking = django_filters.BooleanFilter(label="Parqueo")

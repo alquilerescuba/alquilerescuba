@@ -57,6 +57,9 @@ class Property(models.Model):
         verbose_name="Tipo de alquiler",
     )
 
+    has_stable_electricity = models.BooleanField(
+        default=False, verbose_name="Corriente eléctrica estable (respaldo)"
+    )
     has_wifi = models.BooleanField(default=False, verbose_name="WiFi")
     has_tv = models.BooleanField(default=False, verbose_name="TV")
     has_kitchen = models.BooleanField(default=False, verbose_name="Cocina")

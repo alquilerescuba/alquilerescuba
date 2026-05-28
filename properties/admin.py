@@ -81,6 +81,7 @@ class PropertyAdmin(admin.ModelAdmin):
             "Amenidades",
             {
                 "fields": (
+                    "has_stable_electricity",
                     "has_wifi",
                     "has_tv",
                     "has_kitchen",

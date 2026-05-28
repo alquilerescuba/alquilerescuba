@@ -125,6 +125,12 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <ul class="list-unstyled">
+                                        {% if property.has_stable_electricity %}
+    <li class="mb-2">
+        <i class="fas fa-bolt me-2" style="color: #222222;"></i> 
+        Corriente eléctrica estable (respaldo energético incluido)
+    </li>
+{% endif %}
                                         {% if property.has_wifi %}<li class="mb-2"><i class="fas fa-wifi me-2" style="color: #222222;"></i> WiFi</li>{% endif %}
                                         {% if property.has_tv %}<li class="mb-2"><i class="fas fa-tv me-2" style="color: #222222;"></i> TV</li>{% endif %}
                                         {% if property.has_kitchen %}<li class="mb-2"><i class="fas fa-utensils me-2" style="color: #222222;"></i> Cocina</li>{% endif %}
