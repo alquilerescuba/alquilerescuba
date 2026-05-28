@@ -587,13 +587,37 @@ function updateSelectedDatesMessage() {
     if (!messageDiv) return;
     
     if (selectedStartDate && selectedEndDate) {
-        messageDiv.innerHTML = `
-            <div class="alert alert-success" style="background-color: #F6D5A1; color: #222222; border: none;">
-                <strong>Fechas seleccionadas:</strong><br>
-                Llegada: ${selectedStartDate}<br>
-                Salida: ${selectedEndDate}
-            </div>
-        `;
+        // Verificar disponibilidad de las fechas seleccionadas
+        const start = new Date(selectedStartDate);
+        const end = new Date(selectedEndDate);
+        let current = new Date(start);
+        let hasConflict = false;
+        
+        while (current <= end) {
+            const dateStr = current.toISOString().split('T')[0];
+            if (bookedDates.includes(dateStr)) {
+                hasConflict = true;
+                break;
+            }
+            current.setDate(current.getDate() + 1);
+        }
+        
+        if (!hasConflict) {
+            messageDiv.innerHTML = `
+                <div class="alert alert-success" style="background-color: #F6D5A1; color: #222222; border: none;">
+                    <strong>Fechas seleccionadas:</strong><br>
+                    Llegada: ${selectedStartDate}<br>
+                    Salida: ${selectedEndDate}
+                </div>
+            `;
+        } else {
+            messageDiv.innerHTML = `
+                <div class="alert alert-danger" style="background-color: #ff5a5f; color: white; border: none;">
+                    <strong>Fechas no disponibles</strong><br>
+                    Las fechas seleccionadas están ocupadas o no disponibles.
+                </div>
+            `;
+        }
     } else if (selectedStartDate) {
         messageDiv.innerHTML = `
             <div class="alert alert-info" style="background-color: #0B4078; color: white; border: none;">
@@ -602,6 +626,46 @@ function updateSelectedDatesMessage() {
         `;
     } else {
         messageDiv.innerHTML = '';
+    }
+    
+    // Actualizar estado del botón de reserva
+    updateReserveButton();
+}
+
+// Función para habilitar/deshabilitar el botón de reserva
+function updateReserveButton() {
+    const whatsappBtn = document.getElementById('whatsappButton');
+    
+    if (selectedStartDate && selectedEndDate) {
+        // Verificar si las fechas están disponibles
+        const start = new Date(selectedStartDate);
+        const end = new Date(selectedEndDate);
+        let current = new Date(start);
+        let hasConflict = false;
+        
+        while (current <= end) {
+            const dateStr = current.toISOString().split('T')[0];
+            if (bookedDates.includes(dateStr)) {
+                hasConflict = true;
+                break;
+            }
+            current.setDate(current.getDate() + 1);
+        }
+        
+        if (!hasConflict) {
+            whatsappBtn.disabled = false;
+            whatsappBtn.style.opacity = '1';
+            whatsappBtn.style.cursor = 'pointer';
+            whatsappBtn.style.backgroundColor = '#F6D5A1';
+        } else {
+            whatsappBtn.disabled = true;
+            whatsappBtn.style.opacity = '0.5';
+            whatsappBtn.style.cursor = 'not-allowed';
+        }
+    } else {
+        whatsappBtn.disabled = true;
+        whatsappBtn.style.opacity = '0.5';
+        whatsappBtn.style.cursor = 'not-allowed';
     }
 }
 
@@ -626,6 +690,9 @@ document.getElementById('nextMonth').addEventListener('click', () => {
 // Preparar mensaje de WhatsApp
 document.getElementById('whatsappButton').addEventListener('click', function(e) {
     e.preventDefault();
+    
+    // Si el botón está deshabilitado, no hacer nada
+    if (this.disabled) return;
     
     let precioTexto = '';
     if ('{{ property.price_category }}' === 'night') {
@@ -762,6 +829,14 @@ allThumbnails.forEach((img, index) => {
         const realIndex = allImages.findIndex(url => url === clickedUrl);
         openGallery(realIndex >= 0 ? realIndex : 0);
     });
+});
+
+// Inicializar el botón de reserva deshabilitado al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    const whatsappBtn = document.getElementById('whatsappButton');
+    whatsappBtn.disabled = true;
+    whatsappBtn.style.opacity = '0.5';
+    whatsappBtn.style.cursor = 'not-allowed';
 });
 </script>
 {% endblock %}
