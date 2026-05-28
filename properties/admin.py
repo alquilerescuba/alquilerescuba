@@ -26,6 +26,7 @@ class CategoryAdmin(admin.ModelAdmin):
 class PropertyAdmin(admin.ModelAdmin):
     list_display = (
         "id",  # 👈 AÑADIDO: muestra el ID de la propiedad
+        "owner",
         "title",
         "location",
         "precios_display",
@@ -33,7 +34,7 @@ class PropertyAdmin(admin.ModelAdmin):
         "thumbnail",
     )
     list_display_links = ("id", "title")  # 👈 AÑADIDO: el ID también es un enlace
-    list_filter = ("location", "category", "rental_type", "is_active")
+    list_filter = ("location", "category", "rental_type", "is_active", "owner")
     search_fields = (
         "id",
         "title",
@@ -47,6 +48,7 @@ class PropertyAdmin(admin.ModelAdmin):
             None,
             {
                 "fields": (
+                    "owner",
                     "title",
                     "description",
                     "category",
