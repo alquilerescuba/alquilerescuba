@@ -20,23 +20,21 @@ class PropertyListView(FilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Los métodos average_rating y reviews_count ya están en el modelo
-        # Añadir propiedades destacadas
-        context["featured_properties"] = Property.objects.filter(
-            is_active=True, is_featured=True
-        )[
-            :4
-        ]  # Máximo 4 destacados
-        # Dentro de get_context_data, después de featured_properties
-        context["recent_properties"] = Property.objects.filter(is_active=True).order_by(
-            "-created_at"
-        )[
-            :4
-        ]  # Últimas 4 propiedades
+
+        # ✅ CORRECCIÓN: Usamos el queryset filtrado (context['filter'].qs)
+        # Este queryset ya tiene en cuenta los filtros activos (ubicación, fechas, etc.)
+        filtered_queryset = context["filter"].qs
+
+        # Sección de Destacados (ahora respeta los filtros)
+        context["featured_properties"] = filtered_queryset.filter(is_featured=True)[:4]
+
+        # Sección de Recién agregados (ahora respeta los filtros)
+        context["recent_properties"] = filtered_queryset.order_by("-created_at")[:4]
+
         return context
 
 
-from django.db.models import Avg  # Añade esta importación al inicio
+from django.db.models import Avg
 
 
 class PropertyDetailView(DetailView):
