@@ -24,6 +24,14 @@ class ReviewForm(forms.ModelForm):
 # NUEVO FORMULARIO PARA PROPIEDADES
 # ============================================
 class PropertyForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+
+        # Si el usuario no es staff, ocultamos el campo is_featured
+        if self.user and not self.user.is_staff:
+            self.fields.pop("is_featured", None)
+
     class Meta:
         model = Property
         exclude = ["owner", "created_at", "updated_at", "average_rating"]

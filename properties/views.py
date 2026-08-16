@@ -153,7 +153,8 @@ from .models import Property
 def create_property(request):
     """Publicar una nueva propiedad"""
     if request.method == "POST":
-        form = PropertyForm(request.POST, request.FILES)
+        form = PropertyForm(request.POST, request.FILES, user=request.user)
+
         if form.is_valid():
             new_property = form.save(commit=False)
             new_property.owner = request.user
@@ -161,7 +162,7 @@ def create_property(request):
             messages.success(request, "¡Propiedad publicada con éxito!")
             return redirect("properties:detail", pk=new_property.pk)
     else:
-        form = PropertyForm()
+        form = PropertyForm(user=request.user)
     return render(request, "properties/create_property.html", {"form": form})
 
 
@@ -177,7 +178,9 @@ def update_property(request, pk):
     """Editar una propiedad propia"""
     property = get_object_or_404(Property, pk=pk, owner=request.user)
     if request.method == "POST":
-        form = PropertyForm(request.POST, request.FILES, instance=property)
+        form = PropertyForm(
+            request.POST, request.FILES, instance=property, user=request.user
+        )
         if form.is_valid():
             form.save()
             messages.success(request, "¡Propiedad actualizada con éxito!")
