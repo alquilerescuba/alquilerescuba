@@ -2,6 +2,7 @@ import django_filters
 from django import forms
 from django.db.models import Q
 from properties.models import Property, Category, Booking
+from django.utils.safestring import mark_safe
 
 
 class PropertyFilter(django_filters.FilterSet):
@@ -62,8 +63,11 @@ class PropertyFilter(django_filters.FilterSet):
     )
 
     # 8. Amenidades
+
     has_stable_electricity = django_filters.BooleanFilter(
-        label="⚡ Corriente estable (respaldo)"
+        label=mark_safe(
+            '<i class="fas fa-bolt"></i> Corriente eléctrica estable y/o respaldo energético'
+        )
     )
     has_wifi = django_filters.BooleanFilter(label="WiFi")
     has_pool = django_filters.BooleanFilter(label="Piscina")
