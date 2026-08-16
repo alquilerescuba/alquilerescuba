@@ -6,6 +6,7 @@ from properties.models import Property, Booking
 from properties.filters import PropertyFilter
 from datetime import timedelta
 from django.shortcuts import render
+from django.contrib.admin.views.decorators import staff_member_required
 
 
 class PropertyListView(FilterView):
@@ -192,10 +193,10 @@ def update_property(request, pk):
     )
 
 
-@login_required
+@staff_member_required
 def delete_property(request, pk):
-    """Eliminar una propiedad propia"""
-    property = get_object_or_404(Property, pk=pk, owner=request.user)
+    """Eliminar una propiedad (solo staff)"""
+    property = get_object_or_404(Property, pk=pk)
     if request.method == "POST":
         property.delete()
         messages.success(request, "Propiedad eliminada correctamente.")
