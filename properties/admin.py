@@ -25,7 +25,7 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Property)
 class PropertyAdmin(admin.ModelAdmin):
     list_display = (
-        "id",  # 👈 AÑADIDO: muestra el ID de la propiedad
+        "id",
         "owner",
         "title",
         "location",
@@ -34,7 +34,7 @@ class PropertyAdmin(admin.ModelAdmin):
         "is_featured",
         "thumbnail",
     )
-    list_display_links = ("id", "title")  # 👈 AÑADIDO: el ID también es un enlace
+    list_display_links = ("id", "title")
     list_filter = (
         "location",
         "category",
@@ -48,7 +48,7 @@ class PropertyAdmin(admin.ModelAdmin):
         "title",
         "description",
         "address",
-    )  # 👈 MODIFICADO: añadido 'id'
+    )
     inlines = [PropertyImageInline]
 
     fieldsets = (
@@ -143,5 +143,24 @@ class PropertyAdmin(admin.ModelAdmin):
     thumbnail.short_description = "Foto"
 
 
-admin.site.register(Booking)
+@admin.register(Booking)
+class BookingAdmin(admin.ModelAdmin):
+    list_display = (
+        "property",
+        "start_date",
+        "end_date",
+        "guest_name",
+        "created_at",
+    )
+    list_filter = ("property", "start_date", "end_date")
+    search_fields = (
+        "property__id",  # Buscar por ID de la propiedad
+        "property__title",  # Buscar por título de la propiedad
+        "guest_name",  # Buscar por nombre del huésped
+        "guest_email",  # Buscar por email del huésped
+    )
+    date_hierarchy = "start_date"
+    ordering = ("-start_date",)  # Ordenar por fecha más reciente primero
+
+
 admin.site.register(Review)
