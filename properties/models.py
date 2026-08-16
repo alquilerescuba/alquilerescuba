@@ -26,10 +26,8 @@ class Property(models.Model):
         ("fontanar", "Fontanar, La Habana"),
         ("boca_ciega", "Boca Ciega, La Habana"),
         ("guanabo", "Guanabo, La Habana"),
-        ("penas_altas", "Peñas Altas, La Habana"),
         ("varadero", "Varadero, Matanzas"),
         ("santa_marta", "Santa Marta, Matanzas"),
-        ("trinidad", "Trinidad, Sancti Spíritus"),
     ]
     RENTAL_TYPES = [("entire", "Toda la propiedad"), ("room", "Por habitaciones")]
     PRICE_CATEGORIES = [
