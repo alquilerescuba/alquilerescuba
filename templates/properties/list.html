@@ -12,9 +12,8 @@
     </div>
 </div>
 
-<!-- ====== NUEVO CSS ====== -->
+<!-- ====== CSS PARA TOGGLE EN MÓVIL ====== -->
 <style>
-/* Móvil: ocultar filtros por defecto, mostrar con toggle */
 @media (max-width: 768px) {
     #filtersSidebar {
         display: none !important;
@@ -26,7 +25,6 @@
 </style>
 <!-- ====== FIN CSS ====== -->
 
-<div class="container">
 <!-- Botón Filtros para móvil -->
 <div class="d-md-none mb-3">
     <button class="btn btn-outline-primary w-100" type="button" id="toggleFiltersBtn">
@@ -34,6 +32,7 @@
     </button>
 </div>
 
+<div class="container">
 <!-- Sección de propiedades destacadas -->
 {% if featured_properties %}
 <div class="row mb-5">
