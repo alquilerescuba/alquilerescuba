@@ -15,54 +15,46 @@
 <!-- ====== CSS PARA TOGGLE EN MÓVIL ====== -->
 <style>
 @media (max-width: 768px) {
-    /* El contenedor principal usa flex para reordenar */
     .container {
         display: flex;
         flex-direction: column;
     }
     
-    /* El botón siempre visible */
     .d-md-none.mb-3 {
         order: 1;
         display: block !important;
     }
     
-    /* Los filtros se reubican justo después del botón */
     .row:last-of-type {
         display: flex;
         flex-direction: column;
         order: 2;
     }
     
-    /* El sidebar de filtros se muestra como bloque y va primero */
     .col-md-3.mb-4 {
         order: 0;
         width: 100%;
     }
     
-    /* Ocultar filtros por defecto */
     #filtersSidebar {
         display: none !important;
     }
     
-    /* Mostrar filtros con toggle */
     #filtersSidebar.show {
         display: block !important;
     }
     
-    /* El listado de propiedades va después de los filtros */
     .col-md-9 {
         order: 1;
         width: 100%;
     }
     
-    /* Las secciones destacadas y recién agregadas van después del row */
     .row.mb-5 {
         order: 3;
     }
     
     hr.my-4 {
-        order: 4;
+        display: none !important;
     }
 }
 </style>
