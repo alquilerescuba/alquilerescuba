@@ -12,87 +12,19 @@
     </div>
 </div>
 
+<!-- ====== NUEVO CSS ====== -->
 <style>
-/* ====================================================
-   REORDENAMIENTO PARA MÓVIL
-   ==================================================== */
+/* Móvil: ocultar filtros por defecto, mostrar con toggle */
 @media (max-width: 768px) {
-    /* Contenedor principal en grid */
-    .container {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
-    /* Hero Section - posición 1 */
-    .hero-section {
-        grid-row: 1;
-    }
-
-    /* Botón toggle filtros - posición 2 */
-    .d-md-none.mb-3 {
-        grid-row: 2;
-        order: 2;
-    }
-
-    /* Sidebar filtros - posición 3 (justo debajo del hero) */
     #filtersSidebar {
-        grid-row: 3;
-        order: 3;
-        display: none !important; /* OCULTO POR DEFECTO EN MÓVIL */
-        width: 100%;
+        display: none !important;
     }
-
-    /* Cuando tiene la clase 'show' se muestra */
     #filtersSidebar.show {
         display: block !important;
     }
-
-    /* Propiedades destacadas - posición 4 */
-    .row.mb-5:first-of-type {
-        grid-row: 4;
-        order: 4;
-    }
-
-    /* Divider - posición 5 */
-    hr.my-4:first-of-type {
-        grid-row: 5;
-        order: 5;
-    }
-
-    /* Recién agregados - posición 6 */
-    .row.mb-5:last-of-type {
-        grid-row: 6;
-        order: 6;
-    }
-
-    /* Divider - posición 7 */
-    hr.my-4:last-of-type {
-        grid-row: 7;
-        order: 7;
-    }
-
-    /* Contenedor row principal (filtros + listado) - posición 8 */
-    .row:last-of-type {
-        grid-row: 8;
-        order: 8;
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* El col-md-3 (filtros) ya está en posición 3, lo dejamos */
-    .col-md-3.mb-4 {
-        order: 1;
-        width: 100%;
-    }
-
-    /* El col-md-9 (listado) */
-    .col-md-9 {
-        order: 2;
-        width: 100%;
-    }
 }
 </style>
+<!-- ====== FIN CSS ====== -->
 
 <div class="container">
 <!-- Botón Filtros para móvil -->
