@@ -14,7 +14,16 @@
 
 
 
+
+
 <div class="container">
+<!-- Botón Filtros para móvil -->
+<div class="d-md-none mb-3">
+    <button class="btn btn-outline-primary w-100" type="button" id="toggleFiltersBtn">
+        <i class="fas fa-sliders-h me-2"></i> Mostrar filtros
+    </button>
+</div>
+
 <!-- Sección de propiedades destacadas -->
 {% if featured_properties %}
 <div class="row mb-5">
@@ -134,12 +143,7 @@
 
 
 
-<!-- Botón Filtros para móvil -->
-<div class="d-md-none mb-3">
-    <button class="btn btn-outline-primary w-100" type="button" id="toggleFiltersBtn">
-        <i class="fas fa-sliders-h me-2"></i> Mostrar filtros
-    </button>
-</div>
+
     <div class="row">
         <!-- Sidebar con filtros -->
         <div class="col-md-3 mb-4">
