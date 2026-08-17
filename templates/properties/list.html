@@ -39,8 +39,13 @@
     #filtersSidebar {
         grid-row: 3;
         order: 3;
-        display: block !important;
+        display: none !important; /* OCULTO POR DEFECTO EN MÓVIL */
         width: 100%;
+    }
+
+    /* Cuando tiene la clase 'show' se muestra */
+    #filtersSidebar.show {
+        display: block !important;
     }
 
     /* Propiedades destacadas - posición 4 */
