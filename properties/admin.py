@@ -16,6 +16,18 @@ class PropertyImageInline(admin.TabularInline):
         return "Sin imagen"
 
 
+class BookingInline(admin.TabularInline):
+    """Inline para ver/crear reservas desde la página de la propiedad"""
+
+    model = Booking
+    extra = 1
+    fields = ("start_date", "end_date", "guest_name", "guest_email", "guest_phone")
+    readonly_fields = ("created_at",)
+    autocomplete_fields = [
+        "property"
+    ]  # Para que funcione el autocomplete dentro del inline
+
+
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
@@ -49,7 +61,7 @@ class PropertyAdmin(admin.ModelAdmin):
         "description",
         "address",
     )
-    inlines = [PropertyImageInline]
+    inlines = [PropertyImageInline, BookingInline]  # ← AGREGADO: BookingInline
 
     fieldsets = (
         (
@@ -155,13 +167,14 @@ class BookingAdmin(admin.ModelAdmin):
     )
     list_filter = ("property", "start_date", "end_date")
     search_fields = (
-        "property__id",  # Buscar por ID de la propiedad
-        "property__title",  # Buscar por título de la propiedad
-        "guest_name",  # Buscar por nombre del huésped
-        "guest_email",  # Buscar por email del huésped
+        "property__id",
+        "property__title",
+        "guest_name",
+        "guest_email",
     )
+    autocomplete_fields = ["property"]  # ← NUEVO: Buscar propiedad por ID o título
     date_hierarchy = "start_date"
-    ordering = ("-start_date",)  # Ordenar por fecha más reciente primero
+    ordering = ("-start_date",)
 
 
 admin.site.register(Review)
