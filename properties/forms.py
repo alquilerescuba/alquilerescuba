@@ -58,5 +58,6 @@ class PropertyForm(forms.ModelForm):
             "main_photo": forms.FileInput(attrs={"class": "form-control"}),
         }
         labels = {
-            "has_stable_electricity": "⚡ Corriente eléctrica estable (respaldo)",
+            "has_stable_electricity": "Corriente eléctrica estable (respaldo)",
+            "has_pets_allowed": "Se aceptan mascotas",
         }

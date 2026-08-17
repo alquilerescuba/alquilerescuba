@@ -131,6 +131,12 @@
         Corriente eléctrica estable (respaldo energético incluido)
     </li>
 {% endif %}
+{% if property.has_pets_allowed %}
+    <li class="mb-2">
+        <i class="fas fa-paw me-2" style="color: #222222;"></i> 
+        Se aceptan mascotas
+    </li>
+{% endif %}
                                         {% if property.has_wifi %}<li class="mb-2"><i class="fas fa-wifi me-2" style="color: #222222;"></i> WiFi</li>{% endif %}
                                         {% if property.has_tv %}<li class="mb-2"><i class="fas fa-tv me-2" style="color: #222222;"></i> TV</li>{% endif %}
                                         {% if property.has_kitchen %}<li class="mb-2"><i class="fas fa-utensils me-2" style="color: #222222;"></i> Cocina</li>{% endif %}

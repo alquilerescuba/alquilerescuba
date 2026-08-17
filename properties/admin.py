@@ -92,6 +92,7 @@ class PropertyAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "has_stable_electricity",
+                    "has_pets_allowed",
                     "has_wifi",
                     "has_tv",
                     "has_kitchen",

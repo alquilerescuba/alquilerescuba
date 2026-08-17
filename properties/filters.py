@@ -69,6 +69,7 @@ class PropertyFilter(django_filters.FilterSet):
             '<i class="fas fa-bolt"></i> Corriente eléctrica estable y/o respaldo energético'
         )
     )
+    has_pets_allowed = django_filters.BooleanFilter(label="Se aceptan mascotas")
     has_wifi = django_filters.BooleanFilter(label="WiFi")
     has_pool = django_filters.BooleanFilter(label="Piscina")
     has_parking = django_filters.BooleanFilter(label="Parqueo")

@@ -66,6 +66,9 @@ class Property(models.Model):
     has_stable_electricity = models.BooleanField(
         default=False, verbose_name="Corriente eléctrica estable (respaldo)"
     )
+    has_pets_allowed = models.BooleanField(
+        default=False, verbose_name="Se aceptan mascotas"
+    )
     has_wifi = models.BooleanField(default=False, verbose_name="WiFi")
     has_tv = models.BooleanField(default=False, verbose_name="TV")
     has_kitchen = models.BooleanField(default=False, verbose_name="Cocina")
