@@ -116,17 +116,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context["monthly_properties"] = monthly_properties
 
         # ============================================
-        # 3. Propiedades con más reservas (HISTÓRICO TOTAL)
+        # 3. Propiedades con más intenciones de reserva (HISTÓRICO TOTAL)
         # ============================================
         top_properties = (
             Reservation.objects.all()
             .values("property__title")
-            .annotate(
-                total=Count("id"),
-                pending=Count("id", filter=Q(status="pending")),
-                confirmed=Count("id", filter=Q(status="confirmed")),
-                completed=Count("id", filter=Q(status="completed")),
-            )
+            .annotate(total=Count("id"))
             .order_by("-total")[:10]
         )
         context["top_properties"] = top_properties

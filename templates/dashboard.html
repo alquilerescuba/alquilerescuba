@@ -112,13 +112,13 @@
     </div>
     
     <!-- ============================================ -->
-    <!-- Tabla: Propiedades con más reservas (HISTÓRICO) -->
+    <!-- Tabla: Propiedades con más intenciones de reserva -->
     <!-- ============================================ -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-trophy text-warning"></i> Propiedades con más reservas (histórico total)</h5>
+                    <h5 class="mb-0"><i class="fas fa-trophy text-warning"></i> Propiedades con más intenciones de reserva</h5>
                 </div>
                 <div class="card-body">
                     {% if top_properties %}
@@ -128,10 +128,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Propiedad</th>
-                                        <th>Total</th>
-                                        <th>Pendientes</th>
-                                        <th>Confirmadas</th>
-                                        <th>Completadas</th>
+                                        <th>Intenciones de reserva</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -140,9 +137,6 @@
                                         <td>{{ forloop.counter }}</td>
                                         <td>{{ prop.property__title }}</td>
                                         <td><span class="badge bg-primary">{{ prop.total }}</span></td>
-                                        <td><span class="badge bg-warning">{{ prop.pending }}</span></td>
-                                        <td><span class="badge bg-info">{{ prop.confirmed }}</span></td>
-                                        <td><span class="badge bg-success">{{ prop.completed }}</span></td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
