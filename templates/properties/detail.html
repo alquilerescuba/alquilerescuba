@@ -791,13 +791,17 @@ document.getElementById('whatsappButton').addEventListener('click', function(e) 
     window.open(`https://wa.me/{{ business_whatsapp }}?text=${message}`, '_blank');
     
     fetch('/leads/track/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({ property_id: propertyId })
-    });
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify({
+        property_id: propertyId,
+        check_in: selectedStartDate,
+        check_out: selectedEndDate
+    })
+});
 });
 
 // ============================================
