@@ -50,7 +50,7 @@
     </div>
 
     <!-- ============================================ -->
-    <!-- Tabla principal: Reservas por mes -->
+    <!-- Tabla principal: Reservas por mes (sin columna Mes) -->
     <!-- ============================================ -->
     <div class="row mb-4">
         <div class="col-12">
@@ -107,6 +107,51 @@
                         </div>
                     {% else %}
                         <p class="text-muted text-center mb-0">No hay reservas activas.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ============================================ -->
+    <!-- Tabla: Propiedades con más reservas (HISTÓRICO) -->
+    <!-- ============================================ -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-trophy text-warning"></i> Propiedades con más reservas (histórico total)</h5>
+                </div>
+                <div class="card-body">
+                    {% if top_properties %}
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Propiedad</th>
+                                        <th>Total</th>
+                                        <th>Pendientes</th>
+                                        <th>Confirmadas</th>
+                                        <th>Completadas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for prop in top_properties %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ prop.property__title }}</td>
+                                        <td><span class="badge bg-primary">{{ prop.total }}</span></td>
+                                        <td><span class="badge bg-warning">{{ prop.pending }}</span></td>
+                                        <td><span class="badge bg-info">{{ prop.confirmed }}</span></td>
+                                        <td><span class="badge bg-success">{{ prop.completed }}</span></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center mb-0">No hay datos disponibles.</p>
                     {% endif %}
                 </div>
             </div>

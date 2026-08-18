@@ -87,14 +87,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             .order_by("-month")
         )
 
-        # Obtener lista de propiedades por mes
         monthly_properties = []
         for item in reservations_by_month:
             month_label = (
                 item["month"].strftime("%B %Y") if item["month"] else "Sin fecha"
             )
 
-            # Obtener reservas de ese mes con sus propiedades y estados
             month_reservations = (
                 active_reservations.filter(
                     check_in__year=item["month"].year,
@@ -118,7 +116,23 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context["monthly_properties"] = monthly_properties
 
         # ============================================
-        # 3. Datos para gráfico (últimos 6 meses)
+        # 3. Propiedades con más reservas (HISTÓRICO TOTAL)
+        # ============================================
+        top_properties = (
+            Reservation.objects.all()
+            .values("property__title")
+            .annotate(
+                total=Count("id"),
+                pending=Count("id", filter=Q(status="pending")),
+                confirmed=Count("id", filter=Q(status="confirmed")),
+                completed=Count("id", filter=Q(status="completed")),
+            )
+            .order_by("-total")[:10]
+        )
+        context["top_properties"] = top_properties
+
+        # ============================================
+        # 4. Datos para gráfico (últimos 6 meses - solo activas)
         # ============================================
         six_months_ago = today - timedelta(days=180)
         chart_data = (
@@ -151,13 +165,13 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context["completed_counts"] = completed_counts
 
         # ============================================
-        # 4. Últimas 10 reservas activas
+        # 5. Últimas 10 reservas activas
         # ============================================
         recent_reservations = active_reservations.order_by("-check_in")[:10]
         context["recent_reservations"] = recent_reservations
 
         # ============================================
-        # 5. Propiedades activas (para mantener)
+        # 6. Propiedades activas (para mantener)
         # ============================================
         total_properties = Property.objects.filter(is_active=True).count()
         context["total_properties"] = total_properties
