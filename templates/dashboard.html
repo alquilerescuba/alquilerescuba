@@ -5,27 +5,36 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="h3 mb-4"><i class="fas fa-chart-line"></i> Dashboard de rendimiento</h1>
+    <h1 class="h3 mb-4"><i class="fas fa-chart-line"></i> Dashboard de reservas activas</h1>
     
     <!-- ============================================ -->
-    <!-- Tarjetas de resumen -->
+    <!-- Tarjetas de resumen (solo activas) -->
     <!-- ============================================ -->
     <div class="row mb-4">
         <div class="col-md-3 mb-3">
             <div class="card text-center shadow-sm">
                 <div class="card-body">
-                    <i class="fas fa-building fa-2x text-primary mb-2"></i>
-                    <h2 class="display-4 text-primary">{{ total_properties }}</h2>
-                    <p class="text-muted mb-0">Propiedades activas</p>
+                    <i class="fas fa-calendar-plus fa-2x text-primary mb-2"></i>
+                    <h2 class="display-4 text-primary">{{ total_reservations }}</h2>
+                    <p class="text-muted mb-0">Total reservas activas</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3 mb-3">
             <div class="card text-center shadow-sm">
                 <div class="card-body">
-                    <i class="fas fa-calendar-plus fa-2x text-primary mb-2"></i>
-                    <h2 class="display-4 text-primary">{{ total_reservations }}</h2>
-                    <p class="text-muted mb-0">Total reservas</p>
+                    <i class="fas fa-hourglass-half fa-2x text-warning mb-2"></i>
+                    <h2 class="display-4 text-warning">{{ pending }}</h2>
+                    <p class="text-muted mb-0">Pendientes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-check-circle fa-2x text-info mb-2"></i>
+                    <h2 class="display-4 text-info">{{ confirmed }}</h2>
+                    <p class="text-muted mb-0">Confirmadas</p>
                 </div>
             </div>
         </div>
@@ -38,108 +47,66 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <i class="fas fa-dollar-sign fa-2x text-warning mb-2"></i>
-                    <h2 class="display-4 text-warning">${{ total_commission_amount|floatformat:0 }}</h2>
-                    <p class="text-muted mb-0">Comisiones generadas</p>
-                    <small class="text-muted">{{ total_commission_paid }} pagadas</small>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- Segunda fila: Pendientes + Confirmadas + Canceladas -->
-    <div class="row mb-4">
-        <div class="col-md-4 mb-3">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <i class="fas fa-hourglass-half fa-2x text-warning mb-2"></i>
-                    <h2 class="display-4 text-warning">{{ pending }}</h2>
-                    <p class="text-muted mb-0">Pendientes</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <i class="fas fa-check-circle fa-2x text-info mb-2"></i>
-                    <h2 class="display-4 text-info">{{ confirmed }}</h2>
-                    <p class="text-muted mb-0">Confirmadas</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <i class="fas fa-times-circle fa-2x text-danger mb-2"></i>
-                    <h2 class="display-4 text-danger">{{ cancelled }}</h2>
-                    <p class="text-muted mb-0">Canceladas</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
     <!-- ============================================ -->
-    <!-- Propiedades por ubicación vs Reservas por ubicación -->
+    <!-- Tabla principal: Reservas por mes -->
     <!-- ============================================ -->
     <div class="row mb-4">
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm h-100">
+        <div class="col-12">
+            <div class="card shadow-sm">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-map-marker-alt text-primary"></i> Propiedades por ubicación</h5>
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt text-primary"></i> Reservas activas por mes</h5>
                 </div>
                 <div class="card-body">
-                    {% if properties_by_location %}
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Ubicación</th>
-                                    <th class="text-end">Propiedades</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for loc in properties_by_location %}
-                                <tr>
-                                    <td>{{ loc.location_name }}</td>
-                                    <td class="text-end"><span class="badge bg-primary">{{ loc.total }}</span></td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    {% if monthly_properties %}
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Mes</th>
+                                        <th>Propiedad</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for month_data in monthly_properties %}
+                                        {% for res in month_data.reservations %}
+                                            <tr>
+                                                {% if forloop.first %}
+                                                    <td rowspan="{{ month_data.reservations|length }}">
+                                                        <strong>{{ month_data.month }}</strong>
+                                                        <br>
+                                                        <small class="text-muted">
+                                                            Total: {{ month_data.total }} 
+                                                            (P: {{ month_data.pending }} 
+                                                            C: {{ month_data.confirmed }} 
+                                                            Com: {{ month_data.completed }})
+                                                        </small>
+                                                    </td>
+                                                {% endif %}
+                                                <td>{{ res.property__title }}</td>
+                                                <td>
+                                                    {% if res.status == "pending" %}
+                                                        <span class="badge bg-warning">Pendiente</span>
+                                                    {% elif res.status == "confirmed" %}
+                                                        <span class="badge bg-info">Confirmada</span>
+                                                    {% elif res.status == "completed" %}
+                                                        <span class="badge bg-success">Completada</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="3" class="text-muted text-center">No hay reservas para este mes</td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     {% else %}
-                        <p class="text-muted text-center mb-0">No hay propiedades registradas.</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-chart-simple text-success"></i> Reservas por ubicación</h5>
-                </div>
-                <div class="card-body">
-                    {% if reservations_by_location %}
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Ubicación</th>
-                                    <th class="text-end">Reservas</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for loc in reservations_by_location %}
-                                <tr>
-                                    <td>{{ loc.location_name }}</td>
-                                    <td class="text-end"><span class="badge bg-success">{{ loc.total }}</span></td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    {% else %}
-                        <p class="text-muted text-center mb-0">No hay reservas registradas aún.</p>
+                        <p class="text-muted text-center mb-0">No hay reservas activas.</p>
                     {% endif %}
                 </div>
             </div>
@@ -153,12 +120,12 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-chart-line text-primary"></i> Evolución de reservas (últimos 6 meses)</h5>
+                    <h5 class="mb-0"><i class="fas fa-chart-bar text-primary"></i> Evolución mensual de reservas activas</h5>
                 </div>
                 <div class="card-body">
                     <canvas id="reservationsChart" height="100"></canvas>
                     {% if not months %}
-                        <p class="text-muted text-center mb-0">No hay datos de reservas aún.</p>
+                        <p class="text-muted text-center mb-0">No hay datos de reservas activas.</p>
                     {% endif %}
                 </div>
             </div>
@@ -166,75 +133,46 @@
     </div>
     
     <!-- ============================================ -->
-    <!-- Top propiedades y reservas recientes -->
+    <!-- Últimas reservas -->
     <!-- ============================================ -->
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm h-100">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-trophy text-warning"></i> Propiedades con más reservas</h5>
-                </div>
-                <div class="card-body">
-                    {% if top_properties %}
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Propiedad</th>
-                                    <th>Ubicación</th>
-                                    <th class="text-end">Reservas</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for prop in top_properties %}
-                                <tr>
-                                    <td>{{ prop.property__title|truncatechars:35 }}</td>
-                                    <td>{{ prop.location_name }}</td>
-                                    <td class="text-end"><span class="badge bg-warning text-dark">{{ prop.total }}</span></td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    {% else %}
-                        <p class="text-muted text-center mb-0">No hay datos aún.</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-clock text-info"></i> Últimas reservas</h5>
+                    <h5 class="mb-0"><i class="fas fa-clock text-info"></i> Últimas reservas activas</h5>
                 </div>
                 <div class="card-body">
                     {% if recent_reservations %}
-                        <div class="list-group list-group-flush">
-                            {% for res in recent_reservations %}
-                            <div class="list-group-item px-0">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <i class="fas fa-home text-secondary"></i>
-                                        <strong>{{ res.property.title|truncatechars:35 }}</strong>
-                                        <br>
-                                        <small class="text-muted"><i class="far fa-calendar-alt"></i> {{ res.clicked_at|date:"d/m/Y H:i" }}</small>
-                                    </div>
-                                    <div>
-                                        {% if res.status == "pending" %}
-                                            <span class="badge bg-warning">Pendiente</span>
-                                        {% elif res.status == "confirmed" %}
-                                            <span class="badge bg-info">Confirmada</span>
-                                        {% elif res.status == "completed" %}
-                                            <span class="badge bg-success">Completada</span>
-                                        {% elif res.status == "cancelled" %}
-                                            <span class="badge bg-danger">Cancelada</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Propiedad</th>
+                                        <th>Fechas</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for res in recent_reservations %}
+                                    <tr>
+                                        <td>{{ res.property.title }}</td>
+                                        <td>{{ res.check_in|date:"d/m/Y" }} - {{ res.check_out|date:"d/m/Y" }}</td>
+                                        <td>
+                                            {% if res.status == "pending" %}
+                                                <span class="badge bg-warning">Pendiente</span>
+                                            {% elif res.status == "confirmed" %}
+                                                <span class="badge bg-info">Confirmada</span>
+                                            {% elif res.status == "completed" %}
+                                                <span class="badge bg-success">Completada</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     {% else %}
-                        <p class="text-muted text-center mb-0">No hay reservas registradas aún.</p>
+                        <p class="text-muted text-center mb-0">No hay reservas activas recientes.</p>
                     {% endif %}
                 </div>
             </div>
@@ -246,28 +184,57 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const months = {{ months|safe }};
-    const counts = {{ reservations_counts|safe }};
+    const pending = {{ pending_counts|safe }};
+    const confirmed = {{ confirmed_counts|safe }};
+    const completed = {{ completed_counts|safe }};
     
     if (months.length > 0) {
         const ctx = document.getElementById('reservationsChart').getContext('2d');
         new Chart(ctx, {
-            type: 'line',
+            type: 'bar',
             data: {
                 labels: months,
-                datasets: [{
-                    label: 'Reservas generadas',
-                    data: counts,
-                    borderColor: '#0B4078',
-                    backgroundColor: 'rgba(11, 64, 120, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                }]
+                datasets: [
+                    {
+                        label: 'Pendientes',
+                        data: pending,
+                        backgroundColor: 'rgba(255, 193, 7, 0.7)',
+                        borderColor: 'rgba(255, 193, 7, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Confirmadas',
+                        data: confirmed,
+                        backgroundColor: 'rgba(13, 202, 240, 0.7)',
+                        borderColor: 'rgba(13, 202, 240, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Completadas',
+                        data: completed,
+                        backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        borderWidth: 1
+                    }
+                ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
                     legend: { position: 'top' }
+                },
+                scales: {
+                    x: {
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
                 }
             }
         });

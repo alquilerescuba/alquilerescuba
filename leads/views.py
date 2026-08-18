@@ -4,6 +4,7 @@ from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models.functions import TruncMonth
+from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import timedelta
 import json
@@ -42,7 +43,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "dashboard.html"
 
     def dispatch(self, request, *args, **kwargs):
-        # Cualquier usuario staff (dueño incluido) puede ver el dashboard
         if not request.user.is_staff:
             return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)
@@ -53,111 +53,113 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         from leads.models import Reservation
         from properties.models import Property
 
-        # ============================================
-        # 1. Resumen general con estados
-        # ============================================
-        total_reservations = Reservation.objects.count()
-        pending = Reservation.objects.filter(status="pending").count()
-        confirmed = Reservation.objects.filter(status="confirmed").count()
-        completed = Reservation.objects.filter(status="completed").count()
-        cancelled = Reservation.objects.filter(status="cancelled").count()
+        today = timezone.now().date()
 
-        context["total_reservations"] = total_reservations
+        # ============================================
+        # 1. Solo reservas activas (fecha actual <= check_out)
+        # ============================================
+        active_reservations = Reservation.objects.filter(check_out__gte=today)
+
+        total = active_reservations.count()
+        pending = active_reservations.filter(status="pending").count()
+        confirmed = active_reservations.filter(status="confirmed").count()
+        completed = active_reservations.filter(status="completed").count()
+
+        context["total_reservations"] = total
         context["pending"] = pending
         context["confirmed"] = confirmed
         context["completed"] = completed
-        context["cancelled"] = cancelled
 
         # ============================================
-        # 2. Comisiones
+        # 2. Reservas activas agrupadas por mes
         # ============================================
-        completed_reservations = Reservation.objects.filter(status="completed")
-        total_commission_paid = completed_reservations.filter(
-            commission_paid=True
-        ).count()
-        total_commission_amount = (
-            completed_reservations.aggregate(total=Sum("amount_paid"))["total"] or 0
-        )
+        from django.db.models.functions import TruncMonth
 
-        context["total_commission_paid"] = total_commission_paid
-        context["total_commission_amount"] = total_commission_amount
-
-        # ============================================
-        # 3. Propiedades activas
-        # ============================================
-        total_properties = Property.objects.filter(is_active=True).count()
-        context["total_properties"] = total_properties
-
-        # ============================================
-        # 4. Reservas por ubicación
-        # ============================================
-        location_names = dict(Property.LOCATIONS)
-        reservations_by_location = (
-            Reservation.objects.values("property__location")
-            .annotate(total=Count("id"))
-            .order_by("-total")
-        )
-        for item in reservations_by_location:
-            item["location_name"] = location_names.get(
-                item["property__location"], item["property__location"]
-            )
-        context["reservations_by_location"] = reservations_by_location
-
-        # ============================================
-        # 5. Propiedades por ubicación
-        # ============================================
-        properties_by_location = (
-            Property.objects.filter(is_active=True)
-            .values("location")
-            .annotate(total=Count("id"))
-            .order_by("-total")
-        )
-        for item in properties_by_location:
-            item["location_name"] = location_names.get(
-                item["location"], item["location"]
-            )
-        context["properties_by_location"] = properties_by_location
-
-        # ============================================
-        # 6. Reservas por mes (últimos 6 meses)
-        # ============================================
-        six_months_ago = timezone.now() - timedelta(days=180)
         reservations_by_month = (
-            Reservation.objects.filter(clicked_at__gte=six_months_ago)
-            .annotate(month=TruncMonth("clicked_at"))
+            active_reservations.annotate(month=TruncMonth("check_in"))
             .values("month")
-            .annotate(total=Count("id"))
+            .annotate(
+                total=Count("id"),
+                pending=Count("id", filter=Q(status="pending")),
+                confirmed=Count("id", filter=Q(status="confirmed")),
+                completed=Count("id", filter=Q(status="completed")),
+            )
+            .order_by("-month")
+        )
+
+        # Obtener lista de propiedades por mes
+        monthly_properties = []
+        for item in reservations_by_month:
+            month_label = (
+                item["month"].strftime("%B %Y") if item["month"] else "Sin fecha"
+            )
+
+            # Obtener reservas de ese mes con sus propiedades y estados
+            month_reservations = (
+                active_reservations.filter(
+                    check_in__year=item["month"].year,
+                    check_in__month=item["month"].month,
+                )
+                .values("property__title", "status")
+                .order_by("property__title")
+            )
+
+            monthly_properties.append(
+                {
+                    "month": month_label,
+                    "total": item["total"],
+                    "pending": item["pending"],
+                    "confirmed": item["confirmed"],
+                    "completed": item["completed"],
+                    "reservations": list(month_reservations),
+                }
+            )
+
+        context["monthly_properties"] = monthly_properties
+
+        # ============================================
+        # 3. Datos para gráfico (últimos 6 meses)
+        # ============================================
+        six_months_ago = today - timedelta(days=180)
+        chart_data = (
+            active_reservations.filter(check_in__gte=six_months_ago)
+            .annotate(month=TruncMonth("check_in"))
+            .values("month")
+            .annotate(
+                total=Count("id"),
+                pending=Count("id", filter=Q(status="pending")),
+                confirmed=Count("id", filter=Q(status="confirmed")),
+                completed=Count("id", filter=Q(status="completed")),
+            )
             .order_by("month")
         )
 
         months = []
-        counts = []
-        for item in reservations_by_month:
+        pending_counts = []
+        confirmed_counts = []
+        completed_counts = []
+        for item in chart_data:
             if item["month"]:
                 months.append(item["month"].strftime("%b %Y"))
-                counts.append(item["total"])
+                pending_counts.append(item["pending"])
+                confirmed_counts.append(item["confirmed"])
+                completed_counts.append(item["completed"])
 
         context["months"] = months
-        context["reservations_counts"] = counts
+        context["pending_counts"] = pending_counts
+        context["confirmed_counts"] = confirmed_counts
+        context["completed_counts"] = completed_counts
 
         # ============================================
-        # 7. Top 5 propiedades con más reservas
+        # 4. Últimas 10 reservas activas
         # ============================================
-        top_properties = (
-            Reservation.objects.values("property__title", "property__location")
-            .annotate(total=Count("id"))
-            .order_by("-total")[:5]
-        )
-        for item in top_properties:
-            item["location_name"] = location_names.get(
-                item["property__location"], item["property__location"]
-            )
-        context["top_properties"] = top_properties
-
-        # ============================================
-        # 8. Últimas 10 reservas
-        # ============================================
-        recent_reservations = Reservation.objects.all().order_by("-clicked_at")[:10]
+        recent_reservations = active_reservations.order_by("-check_in")[:10]
         context["recent_reservations"] = recent_reservations
+
+        # ============================================
+        # 5. Propiedades activas (para mantener)
+        # ============================================
+        total_properties = Property.objects.filter(is_active=True).count()
+        context["total_properties"] = total_properties
 
         return context
