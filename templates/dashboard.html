@@ -50,7 +50,7 @@
     </div>
 
     <!-- ============================================ -->
-    <!-- Tabla principal: Reservas por mes (sin columna Mes) -->
+    <!-- Tabla principal: Reservas activas por mes -->
     <!-- ============================================ -->
     <div class="row mb-4">
         <div class="col-12">
@@ -64,42 +64,40 @@
                             <table class="table table-sm table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Mes</th>
                                         <th>Propiedad</th>
                                         <th>Estado</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for month_data in monthly_properties %}
+                                        <tr>
+                                            <td colspan="2" style="background-color: #f8f9fa; font-weight: bold; padding: 10px;">
+                                                {{ month_data.month }}
+                                                <span class="badge bg-secondary ms-2">
+                                                    Total: {{ month_data.total }} 
+                                                    (P: {{ month_data.pending }} 
+                                                    C: {{ month_data.confirmed }} 
+                                                    Com: {{ month_data.completed }})
+                                                </span>
+                                            </td>
+                                        </tr>
                                         {% for res in month_data.reservations %}
-                                            <tr>
-                                                {% if forloop.first %}
-                                                    <td rowspan="{{ month_data.reservations|length }}">
-                                                        <strong>{{ month_data.month }}</strong>
-                                                        <br>
-                                                        <small class="text-muted">
-                                                            Total: {{ month_data.total }} 
-                                                            (P: {{ month_data.pending }} 
-                                                            C: {{ month_data.confirmed }} 
-                                                            Com: {{ month_data.completed }})
-                                                        </small>
-                                                    </td>
+                                        <tr>
+                                            <td>{{ res.property__title }}</td>
+                                            <td>
+                                                {% if res.status == "pending" %}
+                                                    <span class="badge bg-warning">Pendiente</span>
+                                                {% elif res.status == "confirmed" %}
+                                                    <span class="badge bg-info">Confirmada</span>
+                                                {% elif res.status == "completed" %}
+                                                    <span class="badge bg-success">Completada</span>
                                                 {% endif %}
-                                                <td>{{ res.property__title }}</td>
-                                                <td>
-                                                    {% if res.status == "pending" %}
-                                                        <span class="badge bg-warning">Pendiente</span>
-                                                    {% elif res.status == "confirmed" %}
-                                                        <span class="badge bg-info">Confirmada</span>
-                                                    {% elif res.status == "completed" %}
-                                                        <span class="badge bg-success">Completada</span>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
+                                            </td>
+                                        </tr>
                                         {% empty %}
-                                            <tr>
-                                                <td colspan="3" class="text-muted text-center">No hay reservas para este mes</td>
-                                            </tr>
+                                        <tr>
+                                            <td colspan="2" class="text-muted text-center">No hay reservas para este mes</td>
+                                        </tr>
                                         {% endfor %}
                                     {% endfor %}
                                 </tbody>
