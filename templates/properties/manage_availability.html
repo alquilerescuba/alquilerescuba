@@ -177,7 +177,7 @@
 
 <script>
 // Variables globales
-let bookedDates = JSON.parse('{{ booked_dates|safe }}');
+let bookedDates = {{ booked_dates|safe }};
 let currentDate = new Date();
 let currentMonth = currentDate.getMonth();
 let currentYear = currentDate.getFullYear();
