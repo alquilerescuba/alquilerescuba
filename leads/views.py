@@ -58,7 +58,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         # ============================================
         # 1. Solo reservas activas (fecha actual <= check_out)
         # ============================================
-        active_reservations = Reservation.objects.filter(check_out__gte=today)
+        active_reservations = Reservation.objects.filter(
+            check_out__gte=today, source="internal"  # ← Solo reservas internas
+        )
 
         total = active_reservations.count()
         pending = active_reservations.filter(status="pending").count()
@@ -119,7 +121,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         # 3. Propiedades con más intenciones de reserva (HISTÓRICO TOTAL)
         # ============================================
         top_properties = (
-            Reservation.objects.all()
+            Reservation.objects.filter(source="internal")  # ← Solo internas
             .values("property__title")
             .annotate(total=Count("id"))
             .order_by("-total")[:10]
