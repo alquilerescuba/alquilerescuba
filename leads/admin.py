@@ -16,6 +16,7 @@ class ReservationAdmin(admin.ModelAdmin):
         "id",
         "property",
         "status",
+        "source",
         "guest_name",
         "check_in",
         "check_out",
@@ -23,7 +24,7 @@ class ReservationAdmin(admin.ModelAdmin):
         "commission_paid",
         "amount_paid",
     )
-    list_filter = ("status", "commission_paid", "clicked_at", "property")
+    list_filter = ("status", "source", "commission_paid", "clicked_at", "property")
     search_fields = (
         "property__title",
         "property__id",
@@ -62,6 +63,7 @@ class ReservationAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "status",
+                    "source",
                     "status_updated_at",
                     "notes",
                 )
