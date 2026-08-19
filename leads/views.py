@@ -31,6 +31,7 @@ def track_lead(request):
                 check_out=check_out,
                 ip_address=request.META.get("REMOTE_ADDR"),
                 status="pending",
+                source="internal",
             )
             return JsonResponse({"status": "ok"})
     except Exception as e:
