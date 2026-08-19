@@ -87,6 +87,17 @@ class Reservation(models.Model):
     status_updated_at = models.DateTimeField(
         auto_now=True, verbose_name="Última actualización de estado"
     )
+    SOURCE_CHOICES = [
+        ("internal", "Reserva interna (web)"),
+        ("external", "Reserva externa (anfitrión)"),
+    ]
+
+    source = models.CharField(
+        max_length=20,
+        choices=SOURCE_CHOICES,
+        default="internal",
+        verbose_name="Origen de la reserva",
+    )
 
     class Meta:
         app_label = "leads"
