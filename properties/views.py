@@ -7,6 +7,8 @@ from properties.filters import PropertyFilter
 from datetime import timedelta
 from django.shortcuts import render
 from django.contrib.admin.views.decorators import staff_member_required
+import json
+from django.views.decorators.csrf import csrf_exempt
 
 
 class PropertyListView(FilterView):
@@ -73,27 +75,20 @@ class PropertyDetailView(DetailView):
 
 @require_GET
 def get_booked_dates(request, property_id):
-    """API para obtener fechas ocupadas de una propiedad"""
+    """API para obtener fechas ocupadas de una propiedad (desde Reservation)"""
     try:
         property = Property.objects.get(id=property_id)
-        bookings = Booking.objects.filter(property=property)
+        from leads.models import Reservation
 
-        print(f"Propiedad: {property.title}")
-        print(f"Reservas encontradas: {bookings.count()}")
+        reservations = Reservation.objects.filter(property=property)
 
-        # Generar lista de fechas ocupadas
         booked_dates = []
-        for booking in bookings:
-            print(f"Reserva: {booking.start_date} a {booking.end_date}")
-
-            # Crear rango de fechas (incluyendo ambos extremos)
-            current = booking.start_date
-            while current <= booking.end_date:
-                booked_dates.append(current.strftime("%Y-%m-%d"))
-                current += timedelta(days=1)
-
-        print(f"Total fechas ocupadas: {len(booked_dates)}")
-        print(f"Primeras 5: {booked_dates[:5]}")
+        for res in reservations:
+            if res.check_in and res.check_out:
+                current = res.check_in
+                while current <= res.check_out:
+                    booked_dates.append(current.strftime("%Y-%m-%d"))
+                    current += timedelta(days=1)
 
         return JsonResponse(
             {"booked_dates": booked_dates, "success": True, "count": len(booked_dates)}
@@ -202,3 +197,81 @@ def delete_property(request, pk):
         messages.success(request, "Propiedad eliminada correctamente.")
         return redirect("properties:my_properties")
     return render(request, "properties/delete_property.html", {"property": property})
+
+
+# ============================================
+# GESTIÓN DE DISPONIBILIDAD PARA ANFITRIONES
+# ============================================
+
+
+@login_required
+def manage_availability(request, pk):
+    """Vista para que el anfitrión gestione la disponibilidad de su propiedad"""
+    property = get_object_or_404(Property, pk=pk, owner=request.user)
+
+    # Obtener todas las reservas (internas + externas) para esta propiedad
+    from leads.models import Reservation
+
+    reservations = Reservation.objects.filter(property=property)
+
+    booked_dates = []
+    for res in reservations:
+        if res.check_in and res.check_out:
+            current = res.check_in
+            while current <= res.check_out:
+                booked_dates.append(current.strftime("%Y-%m-%d"))
+                current += timedelta(days=1)
+
+    context = {
+        "property": property,
+        "booked_dates": booked_dates,
+    }
+    return render(request, "properties/manage_availability.html", context)
+
+
+@login_required
+@csrf_exempt
+def block_dates(request, pk):
+    """Endpoint para que el anfitrión bloquee fechas"""
+    if request.method != "POST":
+        return JsonResponse(
+            {"status": "error", "message": "Método no permitido"}, status=405
+        )
+
+    try:
+        property = get_object_or_404(Property, pk=pk, owner=request.user)
+
+        data = json.loads(request.body)
+        check_in = data.get("check_in")
+        check_out = data.get("check_out")
+
+        if not check_in or not check_out:
+            return JsonResponse(
+                {"status": "error", "message": "Fechas requeridas"}, status=400
+            )
+
+        from leads.models import Reservation
+
+        # Verificar que las fechas no estén ocupadas
+        existing = Reservation.objects.filter(
+            property=property, check_in__lte=check_out, check_out__gte=check_in
+        )
+        if existing.exists():
+            return JsonResponse(
+                {"status": "error", "message": "Fechas ya ocupadas"}, status=400
+            )
+
+        # Crear reserva externa
+        Reservation.objects.create(
+            property=property,
+            check_in=check_in,
+            check_out=check_out,
+            status="confirmed",
+            source="external",
+            notes=f"Bloqueo manual por anfitrión {request.user.username}",
+        )
+
+        return JsonResponse({"status": "ok"})
+
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)}, status=500)

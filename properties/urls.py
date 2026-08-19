@@ -19,4 +19,10 @@ urlpatterns = [
     path("mis-propiedades/", views.my_properties, name="my_properties"),
     path("editar/<int:pk>/", views.update_property, name="update"),
     path("eliminar/<int:pk>/", views.delete_property, name="delete"),
+    path(
+        "propiedad/<int:pk>/disponibilidad/",
+        views.manage_availability,
+        name="manage_availability",
+    ),
+    path("propiedad/<int:pk>/bloquear-fechas/", views.block_dates, name="block_dates"),
 ]
