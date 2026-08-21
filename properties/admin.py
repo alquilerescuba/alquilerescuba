@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import Category, Property, PropertyImage, Booking, Review
+from leads.models import Reservation  # ← Importar Reservation
 
 
 class PropertyImageInline(admin.TabularInline):
@@ -16,16 +17,21 @@ class PropertyImageInline(admin.TabularInline):
         return "Sin imagen"
 
 
-class BookingInline(admin.TabularInline):
+class ReservationInline(admin.TabularInline):
     """Inline para ver/crear reservas desde la página de la propiedad"""
 
-    model = Booking
+    model = Reservation  # ← Cambiado de Booking a Reservation
     extra = 1
-    fields = ("start_date", "end_date", "guest_name", "guest_email", "guest_phone")
-    readonly_fields = ("created_at",)
-    autocomplete_fields = [
-        "property"
-    ]  # Para que funcione el autocomplete dentro del inline
+    fields = (
+        "check_in",
+        "check_out",
+        "guest_name",
+        "guest_email",
+        "guest_phone",
+        "source",
+    )
+    readonly_fields = ("clicked_at",)  # ← Usamos clicked_at en lugar de created_at
+    autocomplete_fields = ["property"]
 
 
 @admin.register(Category)
@@ -61,7 +67,7 @@ class PropertyAdmin(admin.ModelAdmin):
         "description",
         "address",
     )
-    inlines = [PropertyImageInline, BookingInline]  # ← AGREGADO: BookingInline
+    inlines = [PropertyImageInline, ReservationInline]  # ← Cambiado
 
     fieldsets = (
         (
@@ -156,6 +162,7 @@ class PropertyAdmin(admin.ModelAdmin):
     thumbnail.short_description = "Foto"
 
 
+# Opcional: Mantener BookingAdmin solo para consulta histórica
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
     list_display = (
@@ -172,7 +179,7 @@ class BookingAdmin(admin.ModelAdmin):
         "guest_name",
         "guest_email",
     )
-    autocomplete_fields = ["property"]  # ← NUEVO: Buscar propiedad por ID o título
+    autocomplete_fields = ["property"]
     date_hierarchy = "start_date"
     ordering = ("-start_date",)
 
