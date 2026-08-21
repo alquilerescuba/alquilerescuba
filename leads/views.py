@@ -170,7 +170,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         # ============================================
         # 5. Últimas 10 reservas (TODAS)
         # ============================================
-        recent_reservations = all_reservations.order_by("-created_at")[:10]
+        recent_reservations = all_reservations.order_by("-clicked_at")[:10]
         context["recent_reservations"] = recent_reservations
 
         # ============================================
