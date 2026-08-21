@@ -5,10 +5,10 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="h3 mb-4"><i class="fas fa-chart-line"></i> Dashboard de reservas activas</h1>
+    <h1 class="h3 mb-4"><i class="fas fa-chart-line"></i> Dashboard de reservas</h1>
     
     <!-- ============================================ -->
-    <!-- Tarjetas de resumen (solo activas) -->
+    <!-- Tarjetas de resumen (TODAS) -->
     <!-- ============================================ -->
     <div class="row mb-4">
         <div class="col-md-3 mb-3">
@@ -16,7 +16,7 @@
                 <div class="card-body">
                     <i class="fas fa-calendar-plus fa-2x text-primary mb-2"></i>
                     <h2 class="display-4 text-primary">{{ total_reservations }}</h2>
-                    <p class="text-muted mb-0">Total reservas activas</p>
+                    <p class="text-muted mb-0">Total reservas</p>
                 </div>
             </div>
         </div>
@@ -49,14 +49,36 @@
         </div>
     </div>
 
+    <!-- Segunda fila: Canceladas -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-times-circle fa-2x text-danger mb-2"></i>
+                    <h2 class="display-4 text-danger">{{ cancelled }}</h2>
+                    <p class="text-muted mb-0">Canceladas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-building fa-2x text-primary mb-2"></i>
+                    <h2 class="display-4 text-primary">{{ total_properties }}</h2>
+                    <p class="text-muted mb-0">Propiedades activas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ============================================ -->
-    <!-- Tabla principal: Reservas activas por mes -->
+    <!-- Tabla principal: Reservas por mes (TODAS) -->
     <!-- ============================================ -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-calendar-alt text-primary"></i> Reservas activas por mes</h5>
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt text-primary"></i> Reservas por mes</h5>
                 </div>
                 <div class="card-body">
                     {% if monthly_properties %}
@@ -77,7 +99,8 @@
                                                     Total: {{ month_data.total }} 
                                                     (P: {{ month_data.pending }} 
                                                     C: {{ month_data.confirmed }} 
-                                                    Com: {{ month_data.completed }})
+                                                    Com: {{ month_data.completed }} 
+                                                    Can: {{ month_data.cancelled }})
                                                 </span>
                                             </td>
                                         </tr>
@@ -91,6 +114,8 @@
                                                     <span class="badge bg-info">Confirmada</span>
                                                 {% elif res.status == "completed" %}
                                                     <span class="badge bg-success">Completada</span>
+                                                {% elif res.status == "cancelled" %}
+                                                    <span class="badge bg-danger">Cancelada</span>
                                                 {% endif %}
                                             </td>
                                         </tr>
@@ -104,7 +129,7 @@
                             </table>
                         </div>
                     {% else %}
-                        <p class="text-muted text-center mb-0">No hay reservas activas.</p>
+                        <p class="text-muted text-center mb-0">No hay reservas.</p>
                     {% endif %}
                 </div>
             </div>
@@ -157,12 +182,12 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-chart-bar text-primary"></i> Evolución mensual de reservas activas</h5>
+                    <h5 class="mb-0"><i class="fas fa-chart-bar text-primary"></i> Evolución mensual de reservas</h5>
                 </div>
                 <div class="card-body">
                     <canvas id="reservationsChart" height="100"></canvas>
                     {% if not months %}
-                        <p class="text-muted text-center mb-0">No hay datos de reservas activas.</p>
+                        <p class="text-muted text-center mb-0">No hay datos de reservas.</p>
                     {% endif %}
                 </div>
             </div>
@@ -176,7 +201,7 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-clock text-info"></i> Últimas reservas activas</h5>
+                    <h5 class="mb-0"><i class="fas fa-clock text-info"></i> Últimas reservas</h5>
                 </div>
                 <div class="card-body">
                     {% if recent_reservations %}
@@ -201,6 +226,8 @@
                                                 <span class="badge bg-info">Confirmada</span>
                                             {% elif res.status == "completed" %}
                                                 <span class="badge bg-success">Completada</span>
+                                            {% elif res.status == "cancelled" %}
+                                                <span class="badge bg-danger">Cancelada</span>
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -209,7 +236,7 @@
                             </table>
                         </div>
                     {% else %}
-                        <p class="text-muted text-center mb-0">No hay reservas activas recientes.</p>
+                        <p class="text-muted text-center mb-0">No hay reservas recientes.</p>
                     {% endif %}
                 </div>
             </div>
@@ -224,6 +251,7 @@
     const pending = {{ pending_counts|safe }};
     const confirmed = {{ confirmed_counts|safe }};
     const completed = {{ completed_counts|safe }};
+    const cancelled = {{ cancelled_counts|safe }};
     
     if (months.length > 0) {
         const ctx = document.getElementById('reservationsChart').getContext('2d');
@@ -251,6 +279,13 @@
                         data: completed,
                         backgroundColor: 'rgba(40, 167, 69, 0.7)',
                         borderColor: 'rgba(40, 167, 69, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Canceladas',
+                        data: cancelled,
+                        backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                        borderColor: 'rgba(220, 53, 69, 1)',
                         borderWidth: 1
                     }
                 ]

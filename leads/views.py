@@ -57,35 +57,36 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         today = timezone.now().date()
 
         # ============================================
-        # 1. Solo reservas activas (fecha actual <= check_out)
+        # 1. TODAS las reservas (sin filtrar por activas)
         # ============================================
-        active_reservations = Reservation.objects.filter(
-            check_out__gte=today, source="internal"  # ← Solo reservas internas
-        )
+        all_reservations = Reservation.objects.filter(source="internal")
 
-        total = active_reservations.count()
-        pending = active_reservations.filter(status="pending").count()
-        confirmed = active_reservations.filter(status="confirmed").count()
-        completed = active_reservations.filter(status="completed").count()
+        total = all_reservations.count()
+        pending = all_reservations.filter(status="pending").count()
+        confirmed = all_reservations.filter(status="confirmed").count()
+        completed = all_reservations.filter(status="completed").count()
+        cancelled = all_reservations.filter(status="cancelled").count()
 
         context["total_reservations"] = total
         context["pending"] = pending
         context["confirmed"] = confirmed
         context["completed"] = completed
+        context["cancelled"] = cancelled
 
         # ============================================
-        # 2. Reservas activas agrupadas por mes
+        # 2. Reservas agrupadas por mes (TODAS)
         # ============================================
         from django.db.models.functions import TruncMonth
 
         reservations_by_month = (
-            active_reservations.annotate(month=TruncMonth("check_in"))
+            all_reservations.annotate(month=TruncMonth("check_in"))
             .values("month")
             .annotate(
                 total=Count("id"),
                 pending=Count("id", filter=Q(status="pending")),
                 confirmed=Count("id", filter=Q(status="confirmed")),
                 completed=Count("id", filter=Q(status="completed")),
+                cancelled=Count("id", filter=Q(status="cancelled")),
             )
             .order_by("-month")
         )
@@ -97,7 +98,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             )
 
             month_reservations = (
-                active_reservations.filter(
+                all_reservations.filter(
                     check_in__year=item["month"].year,
                     check_in__month=item["month"].month,
                 )
@@ -112,6 +113,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                     "pending": item["pending"],
                     "confirmed": item["confirmed"],
                     "completed": item["completed"],
+                    "cancelled": item["cancelled"],
                     "reservations": list(month_reservations),
                 }
             )
@@ -122,19 +124,18 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         # 3. Propiedades con más intenciones de reserva (HISTÓRICO TOTAL)
         # ============================================
         top_properties = (
-            Reservation.objects.filter(source="internal")  # ← Solo internas
-            .values("property__title")
+            all_reservations.values("property__title")
             .annotate(total=Count("id"))
             .order_by("-total")[:10]
         )
         context["top_properties"] = top_properties
 
         # ============================================
-        # 4. Datos para gráfico (últimos 6 meses - solo activas)
+        # 4. Datos para gráfico (últimos 6 meses - TODAS)
         # ============================================
         six_months_ago = today - timedelta(days=180)
         chart_data = (
-            active_reservations.filter(check_in__gte=six_months_ago)
+            all_reservations.filter(check_in__gte=six_months_ago)
             .annotate(month=TruncMonth("check_in"))
             .values("month")
             .annotate(
@@ -142,6 +143,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 pending=Count("id", filter=Q(status="pending")),
                 confirmed=Count("id", filter=Q(status="confirmed")),
                 completed=Count("id", filter=Q(status="completed")),
+                cancelled=Count("id", filter=Q(status="cancelled")),
             )
             .order_by("month")
         )
@@ -150,22 +152,25 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         pending_counts = []
         confirmed_counts = []
         completed_counts = []
+        cancelled_counts = []
         for item in chart_data:
             if item["month"]:
                 months.append(item["month"].strftime("%b %Y"))
                 pending_counts.append(item["pending"])
                 confirmed_counts.append(item["confirmed"])
                 completed_counts.append(item["completed"])
+                cancelled_counts.append(item["cancelled"])
 
         context["months"] = months
         context["pending_counts"] = pending_counts
         context["confirmed_counts"] = confirmed_counts
         context["completed_counts"] = completed_counts
+        context["cancelled_counts"] = cancelled_counts
 
         # ============================================
-        # 5. Últimas 10 reservas activas
+        # 5. Últimas 10 reservas (TODAS)
         # ============================================
-        recent_reservations = active_reservations.order_by("-check_in")[:10]
+        recent_reservations = all_reservations.order_by("-created_at")[:10]
         context["recent_reservations"] = recent_reservations
 
         # ============================================
