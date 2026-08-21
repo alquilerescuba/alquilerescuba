@@ -94,8 +94,6 @@ class ReservationAdmin(admin.ModelAdmin):
     )
 
     def has_change_permission(self, request, obj=None):
-        if obj and not request.user.is_superuser:
-            return False
         return super().has_change_permission(request, obj)
 
     def get_readonly_fields(self, request, obj=None):
