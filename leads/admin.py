@@ -33,6 +33,7 @@ class ReservationAdmin(admin.ModelAdmin):
         "guest_phone",
         "notes",
     )
+    autocomplete_fields = ["property"]  # ← Para buscar propiedad por ID o título
     readonly_fields = ("clicked_at", "ip_address", "status_updated_at")
     date_hierarchy = "clicked_at"
     ordering = ("-clicked_at",)
@@ -92,7 +93,6 @@ class ReservationAdmin(admin.ModelAdmin):
         ),
     )
 
-    # Permisos: solo superuser puede cambiar estado y comisiones
     def has_change_permission(self, request, obj=None):
         if obj and not request.user.is_superuser:
             return False
