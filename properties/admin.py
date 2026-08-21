@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import Category, Property, PropertyImage, Booking, Review
-from leads.models import Reservation  # ← Importar Reservation
+from leads.models import Reservation
 
 
 class PropertyImageInline(admin.TabularInline):
@@ -20,7 +20,7 @@ class PropertyImageInline(admin.TabularInline):
 class ReservationInline(admin.TabularInline):
     """Inline para ver/crear reservas desde la página de la propiedad"""
 
-    model = Reservation  # ← Cambiado de Booking a Reservation
+    model = Reservation
     extra = 1
     fields = (
         "check_in",
@@ -29,8 +29,9 @@ class ReservationInline(admin.TabularInline):
         "guest_email",
         "guest_phone",
         "source",
+        "status",
     )
-    readonly_fields = ("clicked_at",)  # ← Usamos clicked_at en lugar de created_at
+    readonly_fields = ("clicked_at",)
     autocomplete_fields = ["property"]
 
 
@@ -67,7 +68,7 @@ class PropertyAdmin(admin.ModelAdmin):
         "description",
         "address",
     )
-    inlines = [PropertyImageInline, ReservationInline]  # ← Cambiado
+    inlines = [PropertyImageInline, ReservationInline]
 
     fieldsets = (
         (
@@ -162,9 +163,10 @@ class PropertyAdmin(admin.ModelAdmin):
     thumbnail.short_description = "Foto"
 
 
-# Opcional: Mantener BookingAdmin solo para consulta histórica
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
+    """Admin de Booking (solo para consulta histórica)"""
+
     list_display = (
         "property",
         "start_date",
