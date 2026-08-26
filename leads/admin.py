@@ -33,7 +33,7 @@ class ReservationAdmin(admin.ModelAdmin):
         "guest_phone",
         "notes",
     )
-    autocomplete_fields = ["property"]  # ← Para buscar propiedad por ID o título
+    autocomplete_fields = ["property"]
     readonly_fields = ("clicked_at", "ip_address", "status_updated_at")
     date_hierarchy = "clicked_at"
     ordering = ("-clicked_at",)
@@ -98,5 +98,6 @@ class ReservationAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if not request.user.is_superuser:
-            return [f.name for f in self.model._meta.fields]
+            # El staff puede editar todo EXCEPTO comisiones
+            return ["commission_paid", "amount_paid", "paid_at"]
         return self.readonly_fields
